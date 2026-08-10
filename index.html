@@ -147,6 +147,43 @@
   .gauge-legend .sw.pending{background:var(--pending);}
   .gauge-legend b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:600;}
 
+  /* ---------- KPIs ---------- */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:14px;
+    margin-top:16px;
+  }
+  .kpi-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .kpi-icon{
+    width:38px;height:38px;flex-shrink:0;
+    border-radius:10px;
+    background:var(--brand-tint);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.05rem;
+  }
+  .kpi-value{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.4rem;color:var(--ink);line-height:1.1;}
+  .kpi-label{font-size:.76rem;color:var(--ink-soft);margin-top:2px;}
+  @media (max-width:900px){ .kpi-grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:480px){ .kpi-grid{grid-template-columns:1fr;} }
+
+  /* ---------- FILTERS ---------- */
+  .filter-select{
+    padding:7px 12px;border:1px solid var(--line);border-radius:8px;
+    font-size:.84rem;font-family:'Inter',sans-serif;background:var(--surface);
+    color:var(--ink);cursor:pointer;max-width:220px;
+  }
+  .filter-select:focus{outline:2px solid var(--brand);border-color:transparent;}
+
   /* ---------- TOOLBAR ---------- */
   .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;background:var(--surface);border:1px solid var(--line);padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);}
   .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
@@ -253,6 +290,8 @@
     </div>
   </div>
 
+  <div class="kpi-grid" id="kpiGrid"></div>
+
   <div class="gauge-card">
     <div class="gauge-top">
       <span class="title">Liquidation progress</span>
@@ -290,6 +329,13 @@
   <div class="toolbar">
     <div class="controls">
       <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts...">
+      <select class="filter-select" id="vehicleFilterSelect" style="display:none;">
+        <option value="all">All vehicles</option>
+      </select>
+      <select class="filter-select" id="monthFilterSelect" style="display:none;">
+        <option value="all">All months</option>
+      </select>
+      <button class="ghost" id="clearFiltersBtn">✕ Clear filters</button>
       <div class="col-visibility">
         <button class="col-visibility-toggle" id="colVisibilityToggle">📊 Columns <span class="badge-count" id="colCountBadge">0</span></button>
         <div class="col-visibility-dropdown" id="colVisibilityDropdown">
@@ -359,6 +405,11 @@
   let columnVisibility = {};
   let sortCol = null;
   let sortDir = 1;
+  let vehicleCol = null;   // auto-detected "Vehicle License Number" / plate column
+  let dateCol = null;      // auto-detected "Delivery Date" column
+  let amountCol = null;    // auto-detected amount/cost column, if any
+  let vehicleFilter = 'all';
+  let monthFilter = 'all';
 
   // ================= DOM =================
   const fileInput = document.getElementById('csvUpload');
@@ -390,6 +441,10 @@
   const pendingBanner = document.getElementById('pendingBanner');
   const pendingText = document.getElementById('pendingText');
   const sourceUrlLabel = document.getElementById('sourceUrlLabel');
+  const kpiGrid = document.getElementById('kpiGrid');
+  const vehicleFilterSelect = document.getElementById('vehicleFilterSelect');
+  const monthFilterSelect = document.getElementById('monthFilterSelect');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 
   sourceUrlLabel.textContent = SHEET_URL.length > 46 ? SHEET_URL.slice(0, 46) + '…' : SHEET_URL;
   sourceUrlLabel.title = SHEET_URL;
@@ -497,6 +552,120 @@
     renderTable();
   }
 
+  // ================= DATE / AMOUNT HELPERS =================
+  // Sheets in this office mix date formats (DD/MM/YYYY, YYYY-Mon-DD, etc.), so this
+  // tries several patterns rather than trusting a single one.
+  function parseFlexibleDate(str){
+    if (!str) return null;
+    str = String(str).trim();
+    if (!str) return null;
+
+    let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+
+    m = str.match(/^(\d{4})[-\/]([A-Za-z]{3,})[-\/](\d{1,2})$/);
+    if (m){ const d = new Date(m[1]+' '+m[2]+' '+m[3]); if (!isNaN(d.getTime())) return d; }
+
+    m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if (m){
+      let a = parseInt(m[1],10), b = parseInt(m[2],10), y = parseInt(m[3],10);
+      if (y < 100) y += 2000;
+      let day, month;
+      if (a > 12) { day = a; month = b; }
+      else if (b > 12) { day = b; month = a; }
+      else { day = a; month = b; } // default to DD/MM/YYYY
+      const d = new Date(y, month-1, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    if (/[A-Za-z]/.test(str)){
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    const d2 = new Date(str);
+    return isNaN(d2.getTime()) ? null : d2;
+  }
+  function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+  function parseAmount(str){ const n = parseFloat(String(str||'').replace(/[^0-9.\-]/g,'')); return isNaN(n) ? 0 : n; }
+  function formatCurrency(n){ return '₱' + n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
+
+  // ================= COLUMN DETECTION =================
+  function detectSpecialColumns(dataHeaders){
+    vehicleCol = dataHeaders.find(h => /plate|vehicle|license/i.test(h)) || null;
+    dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h))
+           || dataHeaders.find(h => /date/i.test(h)) || null;
+    amountCol = dataHeaders.find(h => /amount|cost|value|price/i.test(h)) || null;
+  }
+
+  // ================= FILTER DROPDOWNS =================
+  function rebuildFilterOptions(){
+    if (vehicleCol){
+      const values = Array.from(new Set(currentData.map(r => (r[vehicleCol]||'').trim()).filter(Boolean))).sort();
+      const prev = vehicleFilterSelect.value;
+      vehicleFilterSelect.innerHTML = '<option value="all">All vehicles</option>' +
+        values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+      vehicleFilterSelect.value = values.includes(prev) ? prev : 'all';
+      vehicleFilter = vehicleFilterSelect.value;
+      vehicleFilterSelect.style.display = '';
+    } else {
+      vehicleFilterSelect.style.display = 'none';
+      vehicleFilter = 'all';
+    }
+
+    if (dateCol){
+      const months = new Set();
+      currentData.forEach(r => { const d = parseFlexibleDate(r[dateCol]); if (d) months.add(monthKey(d)); });
+      const sorted = Array.from(months).sort().reverse();
+      const prev = monthFilterSelect.value;
+      monthFilterSelect.innerHTML = '<option value="all">All months</option>' + sorted.map(k => {
+        const [y, mo] = k.split('-');
+        const label = new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleString('en-US', {month:'long', year:'numeric'});
+        return `<option value="${k}">${label}</option>`;
+      }).join('');
+      monthFilterSelect.value = sorted.includes(prev) ? prev : 'all';
+      monthFilter = monthFilterSelect.value;
+      monthFilterSelect.style.display = '';
+    } else {
+      monthFilterSelect.style.display = 'none';
+      monthFilter = 'all';
+    }
+  }
+
+  // ================= KPIs =================
+  function updateKPIs(){
+    const data = filteredData.length ? filteredData : currentData;
+    const total = data.length;
+    const settled = data.filter(r => r._status === 'Settled').length;
+    const incomplete = data.filter(r => r._status === 'Incomplete').length;
+    const rate = total ? Math.round(settled/total*100) : 0;
+    const isFiltered = filteredData.length > 0;
+
+    let card3Icon = '🚛', card3Label = 'Incomplete', card3Value = incomplete;
+    if (amountCol){
+      const sumPending = data.filter(r => r._status === 'Pending').reduce((s,r) => s + parseAmount(r[amountCol]), 0);
+      card3Icon = '₱'; card3Label = 'Pending amount'; card3Value = formatCurrency(sumPending);
+    } else if (vehicleCol){
+      const uniqueVehicles = new Set(data.map(r => (r[vehicleCol]||'').trim()).filter(Boolean)).size;
+      card3Icon = '🚛'; card3Label = 'Vehicles covered'; card3Value = uniqueVehicles;
+    }
+
+    let card4Icon = '✅', card4Label = 'Settled', card4Value = settled;
+    if (dateCol){
+      const now = new Date();
+      const curKey = monthKey(now);
+      const thisMonthCount = data.filter(r => { const d = parseFlexibleDate(r[dateCol]); return d && monthKey(d) === curKey; }).length;
+      card4Icon = '📅'; card4Label = 'Deliveries this month'; card4Value = thisMonthCount;
+    }
+
+    kpiGrid.innerHTML = `
+      <div class="kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${total}</div><div class="kpi-label">Total receipts${isFiltered ? ' (filtered)' : ''}</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${rate}%</div><div class="kpi-label">Settled rate</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">${card3Icon}</div><div><div class="kpi-value">${card3Value}</div><div class="kpi-label">${card3Label}</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">${card4Icon}</div><div><div class="kpi-value">${card4Value}</div><div class="kpi-label">${card4Label}</div></div></div>
+    `;
+  }
+
   // ================= RENDER HELPERS =================
   function updateStats(){
     const data = filteredData.length ? filteredData : currentData;
@@ -517,20 +686,31 @@
     document.getElementById('segSettled').style.width = (total ? settled/total*100 : 0) + '%';
     document.getElementById('segIncomplete').style.width = (total ? incomplete/total*100 : 0) + '%';
     document.getElementById('segPending').style.width = (total ? pending/total*100 : 0) + '%';
+    updateKPIs();
   }
 
   function getVisibleHeaders(){ return headers.filter(h => columnVisibility[h] !== false); }
   function updateColBadge(){ colCountBadge.textContent = getVisibleHeaders().length; }
 
-  function applySearch(){
+  function applyFilters(){
     const term = searchTerm.toLowerCase().trim();
-    if (!term){ filteredData = []; renderTable(); return; }
+    if (!term && vehicleFilter === 'all' && monthFilter === 'all'){ filteredData = []; renderTable(); return; }
     filteredData = currentData.filter(row => {
-      let match = false;
-      headers.forEach(h => { if (String(row[h] || '').toLowerCase().includes(term)) match = true; });
-      if (String(row._remark || '').toLowerCase().includes(term)) match = true;
-      if (String(row._status || '').toLowerCase().includes(term)) match = true;
-      return match;
+      if (term){
+        let match = false;
+        headers.forEach(h => { if (String(row[h] || '').toLowerCase().includes(term)) match = true; });
+        if (String(row._remark || '').toLowerCase().includes(term)) match = true;
+        if (String(row._status || '').toLowerCase().includes(term)) match = true;
+        if (!match) return false;
+      }
+      if (vehicleFilter !== 'all' && vehicleCol){
+        if ((row[vehicleCol] || '').trim() !== vehicleFilter) return false;
+      }
+      if (monthFilter !== 'all' && dateCol){
+        const d = parseFlexibleDate(row[dateCol]);
+        if (!d || monthKey(d) !== monthFilter) return false;
+      }
+      return true;
     });
     renderTable();
   }
@@ -614,7 +794,7 @@
         const idx = parseInt(this.dataset.index);
         if (!isNaN(idx) && currentData[idx]){
           commitEdit(currentData[idx], this.value, currentData[idx]._remark || '');
-          if (filteredData.length) applySearch(); else renderTable();
+          if (filteredData.length) applyFilters(); else renderTable();
         }
       });
     });
@@ -709,10 +889,12 @@
     const nextVisibility = {};
     headers.forEach(h => { nextVisibility[h] = columnVisibility[h] !== false; });
     columnVisibility = nextVisibility;
+    detectSpecialColumns(dataHeaders);
 
     currentData = newData;
     filteredData = [];
-    if (searchTerm) applySearch();
+    rebuildFilterOptions();
+    if (searchTerm || vehicleFilter !== 'all' || monthFilter !== 'all') applyFilters();
     rebuildColumnCheckboxes();
     renderTable();
     updatePendingBanner();
@@ -747,7 +929,15 @@
     this.value = '';
   });
 
-  searchBox.addEventListener('input', function(){ searchTerm = this.value; applySearch(); });
+  searchBox.addEventListener('input', function(){ searchTerm = this.value; applyFilters(); });
+  vehicleFilterSelect.addEventListener('change', function(){ vehicleFilter = this.value; applyFilters(); });
+  monthFilterSelect.addEventListener('change', function(){ monthFilter = this.value; applyFilters(); });
+  clearFiltersBtn.addEventListener('click', function(){
+    searchTerm = ''; searchBox.value = '';
+    vehicleFilter = 'all'; vehicleFilterSelect.value = 'all';
+    monthFilter = 'all'; monthFilterSelect.value = 'all';
+    applyFilters();
+  });
 
   colVisibilityToggle.addEventListener('click', function(e){
     e.stopPropagation();
