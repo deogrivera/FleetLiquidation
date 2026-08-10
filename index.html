@@ -792,22 +792,43 @@
   }
 
   function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
-  function parseAmount(str){ const n = parseFloat(String(str||'').replace(/[^0-9.\-]/g,'')); return isNaN(n) ? 0 : n; }
-  function formatCurrency(n){ return '₱' + n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
-  function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
+  function parseAmount(str){ 
+    if (!str) return 0;
+    // Remove currency symbols, commas, and any non-numeric characters except decimal point and minus sign
+    const cleaned = String(str).replace(/[^0-9.\-]/g, '');
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
+  }
+  function formatCurrency(n){ return '₱' + n.toLocaleString('en-PH', {maximumFractionDigits:2, minimumFractionDigits:2}); }
+  function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:2, minimumFractionDigits:0}); }
 
   function detectSpecialColumns(dataHeaders){
     vehicleCol = dataHeaders.find(h => /plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     
-    // AMOUNT COLUMN: Specifically look for "Gross Purchase Price in transaction currency (incl VAT and after discount)"
-    // or variations like "Gross Purchase Price", "Gross Amount", "Purchase Price", etc.
-    amountCol = dataHeaders.find(h => /gross.*purchase.*price|gross.*amount|purchase.*price.*vat|transaction.*currency/i.test(h)) || null;
-    // Fallback to other common amount column names if the specific one isn't found
+    // AMOUNT COLUMN: Specifically look for the exact column name from the sheet
+    // "GROSS PURCHASE PRICE IN TRANSACTION CURRENCY (INCL VAT AND AFTER DISCOUNT)"
+    // Also match variations with different case or spacing
+    amountCol = dataHeaders.find(h => {
+      const lower = h.toLowerCase();
+      return lower.includes('gross purchase price') || 
+             lower.includes('gross amount') || 
+             lower.includes('purchase price') && lower.includes('vat') ||
+             lower.includes('transaction currency') ||
+             lower.includes('gross') && lower.includes('price') && lower.includes('vat');
+    }) || null;
+    
+    // Fallback: look for any amount/price column
     if (!amountCol) {
-      amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
+      amountCol = dataHeaders.find(h => /amount|cost|value|price|total|gross/i.test(h)) || null;
     }
+    
+    // Debug: log what was found
+    console.log('Amount column detected:', amountCol);
+    console.log('Liters column detected:', litersCol);
+    console.log('Vehicle column detected:', vehicleCol);
+    console.log('Date column detected:', dateCol);
   }
 
   function rebuildFilterOptions(){
@@ -844,14 +865,22 @@
     const unsettled = pending + incomplete;
 
     let totalLiters = 0;
-    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    if (litersCol) { 
+      totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); 
+    }
     let totalAmount = 0;
-    if (amountCol) { totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
+    if (amountCol) { 
+      totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); 
+    }
 
     let unsettledLiters = 0;
     let unsettledAmount = 0;
-    if (litersCol) { unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
-    if (amountCol) { unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
+    if (litersCol) { 
+      unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); 
+    }
+    if (amountCol) { 
+      unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); 
+    }
 
     const settledRate = total ? Math.round(settled/total*100) : 0;
     const unsettledRate = total ? Math.round(unsettled/total*100) : 0;
