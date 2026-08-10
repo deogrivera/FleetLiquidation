@@ -1188,8 +1188,9 @@
     @media print {
       body {
         background: white;
-        padding: 0.4in 0.3in;
+        padding: 0.3in 0.3in;
         margin: 0;
+        font-family: 'Inter', system-ui, sans-serif;
       }
       .masthead,
       .sync-panel,
@@ -1218,119 +1219,64 @@
         padding: 0;
       }
       .unsettled-table-wrap {
-        max-height: none;
-        overflow: visible;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-      }
-      .unsettled-table-wrap table {
-        font-size: 9pt;
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-      }
-      .unsettled-table-wrap th {
-        background: #f0f0f0 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        padding: 6px 8px;
-        font-size: .7rem;
-        border: 1px solid #ddd;
-        text-transform: uppercase;
-      }
-      .unsettled-table-wrap td {
-        padding: 5px 8px;
-        font-size: 8.5pt;
-        border: 1px solid #ddd;
-      }
-      .unsettled-table-wrap .status-badge {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        font-weight: 600;
-      }
-      .group-expand-btn {
-        display: none !important;
-      }
-      .detail-row {
-        display: none !important;
-      }
-      .group-row td {
-        background: #f8fafc !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        border-bottom: 1px solid #ddd;
-      }
-      .group-row .group-vehicle {
-        font-weight: 700;
-        color: #0f4c5c;
-        font-size: .9rem;
-      }
-      .group-row .group-summary {
-        display: none !important;
-      }
-      /* Hide extra columns in PDF - only show Vehicle, Status, Liters, Amount, and No. of Unsettled Receipts */
-      .unsettled-table-wrap th:nth-child(1),
-      .unsettled-table-wrap td:nth-child(1) {
-        display: none !important;
-      }
-      .unsettled-table-wrap th:nth-child(6),
-      .unsettled-table-wrap td:nth-child(6) {
-        display: none !important;
-      }
-      .unsettled-table-wrap th:nth-child(7),
-      .unsettled-table-wrap td:nth-child(7) {
-        display: none !important;
-      }
-      .unsettled-table-wrap th:nth-child(8),
-      .unsettled-table-wrap td:nth-child(8) {
-        display: none !important;
-      }
-      .unsettled-table-wrap th:nth-child(9),
-      .unsettled-table-wrap td:nth-child(9) {
-        display: none !important;
-      }
-      /* Reorder: Vehicle (col2), Status (col3), Liters (col4), Amount (col5), No. of Unsettled Receipts (col6) */
-      /* But we want No. of Unsettled Receipts to appear in the Site Name column position */
-      /* We'll use a different approach: rebuild the table in JS for PDF */
-      .unsettled-table-wrap {
         display: none !important;
       }
       .pdf-table-wrapper {
         display: block !important;
         margin-top: 10px;
+        width: 100%;
       }
       .pdf-table-wrapper table {
         width: 100%;
         border-collapse: collapse;
         font-size: 9pt;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
+        font-family: 'Inter', system-ui, sans-serif;
       }
       .pdf-table-wrapper th {
         background: #f0f0f0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         padding: 6px 8px;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
         text-align: left;
         font-weight: 600;
         font-size: .7rem;
         text-transform: uppercase;
+        letter-spacing: .3px;
       }
       .pdf-table-wrapper td {
         padding: 5px 8px;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
         font-size: 8.5pt;
+        vertical-align: middle;
       }
       .pdf-table-wrapper .status-badge {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: .7rem;
+      }
+      .pdf-table-wrapper .status-badge.pending {
+        background: #fceaea;
+        color: #c23b3b;
+      }
+      .pdf-table-wrapper .status-badge.incomplete {
+        background: #fdf1de;
+        color: #a8710f;
+      }
+      .pdf-table-wrapper .text-right {
+        text-align: right;
+      }
+      .pdf-table-wrapper .text-center {
+        text-align: center;
       }
       .pdf-header {
         display: block !important;
         text-align: center;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
         border-bottom: 2px solid #0f4c5c;
         padding-bottom: 10px;
       }
@@ -1339,11 +1285,22 @@
         color: #0f4c5c;
         font-family: 'Space Grotesk', sans-serif;
         font-size: 1.2rem;
+        font-weight: 600;
       }
       .pdf-header p {
         margin: 4px 0 0;
         color: #4a5a70;
         font-size: .8rem;
+      }
+      .pdf-header .month-tag {
+        display: inline-block;
+        background: #e6eef0;
+        color: #0f4c5c;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: .75rem;
+        font-weight: 600;
+        margin-top: 4px;
       }
       .pdf-footer {
         margin-top: 16px;
@@ -2434,6 +2391,14 @@
 
         const now = new Date().toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' });
 
+        // Get month label from filter
+        let monthLabel = 'All Months';
+        if (unsettledMonthFilter !== 'all' && dateCol) {
+          const [year, month] = unsettledMonthFilter.split('-');
+          const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+          monthLabel = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        }
+
         // Build table rows
         let tableRows = '';
         sortedKeys.forEach(vehicle => {
@@ -2442,16 +2407,17 @@
           const litersSum = rows.reduce((s, r) => s + parseAmount(r[litersCol]), 0);
           const amountSum = rows.reduce((s, r) => s + parseAmount(r[amountCol]), 0);
           const statuses = new Set(rows.map(r => r._status));
-          const statusLabel = statuses.size === 1 ? (statuses.has('Pending') ? '⏳ Pending' : '⚠️ Incomplete') :
+          const statusLabel = statuses.size === 1 ? (statuses.has('Pending') ? 'Pending' : 'Incomplete') :
             'Mixed';
+          const statusClass = statuses.has('Pending') ? 'pending' : 'incomplete';
 
           tableRows += `
-            <tr style="border-bottom:1px solid #ddd;">
-              <td style="padding:5px 8px;border:1px solid #ddd;font-weight:600;color:#0f4c5c;">${escapeHtml(vehicle)}</td>
-              <td style="padding:5px 8px;border:1px solid #ddd;">${statusLabel}</td>
-              <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">${formatNumber(litersSum)}</td>
-              <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">${formatCurrency(amountSum)}</td>
-              <td style="padding:5px 8px;border:1px solid #ddd;text-align:center;font-weight:600;color:#0f4c5c;">${count}</td>
+            <tr>
+              <td style="padding:5px 8px;border:1px solid #ccc;font-weight:600;color:#0f4c5c;">${escapeHtml(vehicle)}</td>
+              <td style="padding:5px 8px;border:1px solid #ccc;"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+              <td style="padding:5px 8px;border:1px solid #ccc;text-align:right;">${formatNumber(litersSum)}</td>
+              <td style="padding:5px 8px;border:1px solid #ccc;text-align:right;">${formatCurrency(amountSum)}</td>
+              <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:600;color:#0f4c5c;">${count}</td>
             </tr>`;
         });
 
@@ -2459,6 +2425,7 @@
           <div class="pdf-header">
             <h2>DA-RFO I · Unsettled Receipts Report</h2>
             <p>Generated: ${now}</p>
+            <div class="month-tag">${monthLabel}</div>
           </div>
           <div class="pdf-summary-grid">
             <div class="pdf-summary-card">
