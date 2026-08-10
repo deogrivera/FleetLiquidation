@@ -122,7 +122,7 @@
   .refresh-btn .spin.on{animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* ---------- GAUGE (signature element) ---------- */
+  /* ---------- GAUGE ---------- */
   .gauge-card{
     background:var(--surface);
     border:1px solid var(--line);
@@ -134,14 +134,7 @@
   .gauge-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
   .gauge-top .title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem;color:var(--ink);}
   .gauge-top .pct{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-soft);}
-  .gauge-track{
-    height:14px;
-    border-radius:7px;
-    overflow:hidden;
-    display:flex;
-    background:var(--line-soft);
-    border:1px solid var(--line);
-  }
+  .gauge-track{height:14px;border-radius:7px;overflow:hidden;display:flex;background:var(--line-soft);border:1px solid var(--line);}
   .gauge-seg{height:100%;transition:width .4s ease;}
   .gauge-seg.settled{background:var(--settled);}
   .gauge-seg.incomplete{background:var(--incomplete);}
@@ -155,27 +148,9 @@
   .gauge-legend b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:600;}
 
   /* ---------- TOOLBAR ---------- */
-  .toolbar{
-    display:flex;flex-wrap:wrap;gap:12px;align-items:center;
-    margin-top:16px;
-    background:var(--surface);
-    border:1px solid var(--line);
-    padding:12px 16px;
-    border-radius:12px;
-    box-shadow:var(--shadow);
-  }
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;background:var(--surface);border:1px solid var(--line);padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);}
   .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  button{
-    background:var(--surface);
-    border:1px solid var(--line);
-    padding:7px 14px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:.84rem;
-    font-family:'Inter',sans-serif;
-    color:var(--ink);
-    transition:.15s;
-  }
+  button{background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.84rem;font-family:'Inter',sans-serif;color:var(--ink);transition:.15s;}
   button:hover{background:var(--paper);border-color:#c9d3e0;}
   button.primary{background:var(--brand);color:#fff;border-color:var(--brand);}
   button.primary:hover{background:var(--brand-dark);}
@@ -183,16 +158,9 @@
   button.danger:hover{background:#a52f2f;}
   button.ghost{background:transparent;border-color:var(--line);color:var(--ink-soft);}
   input[type="file"]{display:none;}
-  .file-label{
-    background:var(--surface);border:1px solid var(--line);padding:7px 14px;
-    border-radius:8px;cursor:pointer;font-size:.84rem;color:var(--ink-soft);
-  }
+  .file-label{background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.84rem;color:var(--ink-soft);}
   .file-label:hover{background:var(--paper);}
-  .search-box{
-    padding:7px 12px;border:1px solid var(--line);border-radius:8px;
-    font-size:.84rem;min-width:220px;font-family:'Inter',sans-serif;
-    background:var(--surface);
-  }
+  .search-box{padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.84rem;min-width:220px;font-family:'Inter',sans-serif;background:var(--surface);}
   .search-box:focus{outline:2px solid var(--brand);border-color:transparent;}
   .stats{display:flex;gap:22px;flex-wrap:wrap;margin-left:auto;}
   .stat{display:flex;align-items:baseline;gap:6px;}
@@ -202,80 +170,55 @@
   .stat.pending .stat-value{color:var(--pending);}
   .stat.incomplete .stat-value{color:var(--incomplete);}
 
-  /* column visibility */
   .col-visibility{position:relative;display:inline-block;}
-  .col-visibility-dropdown{
-    display:none;position:absolute;top:100%;left:0;background:var(--surface);
-    border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:210px;
-    max-height:300px;overflow-y:auto;box-shadow:var(--shadow);z-index:100;margin-top:6px;
-  }
+  .col-visibility-dropdown{display:none;position:absolute;top:100%;left:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:210px;max-height:300px;overflow-y:auto;box-shadow:var(--shadow);z-index:100;margin-top:6px;}
   .col-visibility-dropdown.show{display:block;}
   .col-visibility-dropdown label{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:.83rem;}
   .col-visibility-dropdown label:hover{background:var(--paper);}
   .col-visibility-dropdown input[type="checkbox"]{accent-color:var(--brand);width:15px;height:15px;cursor:pointer;}
-  .col-visibility-toggle{
-    background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:8px;
-    cursor:pointer;font-size:.84rem;display:flex;align-items:center;gap:6px;color:var(--ink);
-  }
+  .col-visibility-toggle{background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.84rem;display:flex;align-items:center;gap:6px;color:var(--ink);}
   .col-visibility-toggle:hover{background:var(--paper);}
   .badge-count{background:var(--brand);color:#fff;border-radius:50%;padding:0 6px;font-size:.68rem;min-width:18px;text-align:center;font-family:'JetBrains Mono',monospace;}
 
   /* ---------- TABLE ---------- */
-  .table-wrap{
-    overflow:auto;margin-top:16px;border-radius:12px;border:1px solid var(--line);
-    max-height:65vh;background:var(--surface);box-shadow:var(--shadow);
-  }
+  .table-wrap{overflow:auto;margin-top:16px;border-radius:12px;border:1px solid var(--line);max-height:65vh;background:var(--surface);box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;font-size:.86rem;}
-  th{
-    background:#f6f8fb;text-align:left;padding:11px 10px;position:sticky;top:0;z-index:10;
-    white-space:nowrap;border-bottom:1px solid var(--line);font-weight:600;color:var(--ink-soft);
-    font-size:.76rem;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none;
-  }
+  th{background:#f6f8fb;text-align:left;padding:11px 10px;position:sticky;top:0;z-index:10;white-space:nowrap;border-bottom:1px solid var(--line);font-weight:600;color:var(--ink-soft);font-size:.76rem;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none;}
   th:hover{color:var(--brand);}
   th .arrow{opacity:.4;font-size:.7rem;margin-left:3px;}
   th.sorted .arrow{opacity:1;color:var(--brand);}
-  td{padding:9px 10px;border-top:1px solid var(--line-soft);vertical-align:middle;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
-  td.data-cell{font-family:'JetBrains Mono',monospace;}
+  td{padding:9px 10px;border-top:1px solid var(--line-soft);vertical-align:middle;}
+  td.data-cell{font-family:'JetBrains Mono',monospace;font-size:.82rem;}
   tr:hover td{background:#fafcfe;}
 
-  .status-select{
-    padding:4px 9px;border-radius:20px;border:1px solid var(--line);font-size:.76rem;
-    font-weight:600;background:#fff;cursor:pointer;min-width:112px;appearance:auto;
-    font-family:'Inter',sans-serif;
-  }
+  .status-select{padding:4px 9px;border-radius:20px;border:1px solid var(--line);font-size:.76rem;font-weight:600;background:#fff;cursor:pointer;min-width:112px;appearance:auto;font-family:'Inter',sans-serif;}
   .status-select:focus{outline:2px solid var(--brand);border-color:transparent;}
   .status-select.option-settled{border-color:var(--settled-line);color:var(--settled);background:var(--settled-bg);}
   .status-select.option-pending{border-color:var(--pending-line);color:var(--pending);background:var(--pending-bg);}
   .status-select.option-incomplete{border-color:var(--incomplete-line);color:var(--incomplete);background:var(--incomplete-bg);}
-  .remark-input{
-    border:1px solid var(--line);border-radius:6px;padding:5px 7px;width:100%;min-width:100px;
-    font-size:.78rem;font-family:'Inter',sans-serif;
-  }
+  .status-select:disabled{opacity:.55;cursor:wait;}
+  .remark-input{border:1px solid var(--line);border-radius:6px;padding:5px 7px;width:100%;min-width:100px;font-size:.78rem;font-family:'Inter',sans-serif;}
   .remark-input:focus{outline:1px solid var(--brand);border-color:var(--brand);}
+  .remark-input:disabled{opacity:.55;cursor:wait;}
+  .row-flag{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:6px;vertical-align:middle;}
+  .row-flag.saving{background:#f5c453;}
+  .row-flag.queued{background:#f28b82;}
 
   .empty-state{text-align:center;padding:52px 20px;color:var(--ink-soft);}
   .empty-state p{margin:8px 0;}
   .empty-state .icon{font-size:2rem;margin-bottom:6px;}
 
-  .banner{
-    display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;
-    font-size:.85rem;margin-top:14px;border:1px solid transparent;
-  }
+  .banner{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;font-size:.85rem;margin-top:14px;border:1px solid transparent;}
   .banner.show{display:flex;}
   .banner.error{background:var(--pending-bg);border-color:var(--pending-line);color:var(--pending);}
   .banner.info{background:var(--brand-tint);border-color:#c8dbd7;color:var(--brand-dark);}
+  .banner.warn{background:var(--incomplete-bg);border-color:var(--incomplete-line);color:var(--incomplete);}
   .banner button{margin-left:auto;flex-shrink:0;}
 
   .footer-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;align-items:center;}
-  .source-tag{
-    font-size:.74rem;color:var(--ink-soft);margin-left:auto;display:flex;align-items:center;gap:8px;
-    background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:8px;
-  }
+  .source-tag{font-size:.74rem;color:var(--ink-soft);margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:8px;}
   .source-tag .lock{opacity:.6;}
-  .source-tag code{
-    background:var(--paper);padding:2px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;
-    max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;
-  }
+  .source-tag code{background:var(--paper);padding:2px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;}
   .legend-chip{font-size:.78rem;color:var(--ink-soft);}
   .legend-chip span{padding:2px 9px;border-radius:12px;font-weight:600;font-size:.74rem;}
 
@@ -298,7 +241,7 @@
     <div>
       <div class="eyebrow">DA-RFO I · General Services Section</div>
       <h1>⛽ Gasoline Liquidation Tracker</h1>
-      <div style="font-size:.85rem;color:#c7ddd8;">Receipt-level settlement status, synced from the official log</div>
+      <div style="font-size:.85rem;color:#c7ddd8;">Two-way synced with the official liquidation log</div>
     </div>
     <div class="sync-panel">
       <span class="sync-dot" id="syncDot"></span>
@@ -328,10 +271,20 @@
     </div>
   </div>
 
+  <div class="banner warn" id="configBanner">
+    <span>⚙️</span>
+    <span>Two-way sync isn't wired up yet — open the file and set <code>WEBAPP_URL</code> at the top of the script to your deployed Apps Script Web App URL. Until then, status/remark edits are saved only in this browser.</span>
+  </div>
+
   <div class="banner error" id="errorBanner">
     <span>⚠️</span>
     <span id="errorText">Could not reach the data source.</span>
     <button id="retryBtn">Retry</button>
+  </div>
+
+  <div class="banner warn" id="pendingBanner">
+    <span>⏳</span>
+    <span id="pendingText">Some changes haven't reached the sheet yet — retrying…</span>
   </div>
 
   <div class="toolbar">
@@ -350,7 +303,6 @@
       </div>
       <label class="file-label" for="csvUpload">📂 Load CSV manually</label>
       <input type="file" id="csvUpload" accept=".csv">
-      <button id="resetBtn" class="ghost">↺ Reset statuses</button>
     </div>
     <div class="stats" id="statsDisplay">
       <div class="stat settled"><span class="stat-label">Settled</span> <span class="stat-value" id="countSettled">0</span></div>
@@ -373,8 +325,7 @@
   </div>
 
   <div class="footer-actions">
-    <button id="exportBtn" class="primary">💾 Export marked CSV</button>
-    <button id="clearEditsBtn" class="danger">🗑️ Clear saved statuses</button>
+    <button id="exportBtn" class="primary">💾 Export CSV</button>
     <span class="legend-chip">
       <span style="background:var(--settled-bg);color:var(--settled);">Settled</span>
       <span style="background:var(--pending-bg);color:var(--pending);">Pending</span>
@@ -387,25 +338,31 @@
 
 <script>
 (function(){
-  // ----- FIXED DATA SOURCE (locked) -----
+  // ================= CONFIG =================
+  // Published Google Sheet CSV (read side). Columns A=Status, B=Remarks, then your data columns.
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJF9zFlZ6Cf_wqIDALZHjVPCdjoo9xCNa10G-8r6TROtED1jNPhAmDEV7ETuzBc4sybYrPfCdOC_pi/pub?gid=1322434383&single=true&output=csv";
-  const STORAGE_KEY = "gasLiquidation_edits_v1";
-  const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
 
-  // ----- STATE -----
-  let currentData = [];
+  // Apps Script Web App URL (write side). Deploy the script provided alongside this
+  // file, then paste the deployment URL here. Leave blank to run read-only/local-only.
+  const WEBAPP_URL = "";
+
+  const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+  const LOCAL_FALLBACK_KEY = "gasLiquidation_localEdits_v2"; // used only when WEBAPP_URL is blank
+  const PENDING_KEY = "gasLiquidation_pendingWrites_v2";     // writes waiting to reach the sheet
+  const PENDING_RETRY_MS = 20 * 1000;
+
+  // ================= STATE =================
+  let currentData = [];      // { _row, _status, _remark, <data columns...> }
   let filteredData = [];
-  let headers = [];
+  let headers = [];          // data-column headers (Status/Remark excluded)
   let searchTerm = '';
   let columnVisibility = {};
   let sortCol = null;
-  let sortDir = 1; // 1 asc, -1 desc
+  let sortDir = 1;
 
-  // ----- DOM REFS -----
+  // ================= DOM =================
   const fileInput = document.getElementById('csvUpload');
-  const resetBtn = document.getElementById('resetBtn');
   const exportBtn = document.getElementById('exportBtn');
-  const clearEditsBtn = document.getElementById('clearEditsBtn');
   const searchBox = document.getElementById('searchBox');
   const tableHead = document.getElementById('tableHead');
   const tableBody = document.getElementById('tableBody');
@@ -429,32 +386,19 @@
   const errorBanner = document.getElementById('errorBanner');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
+  const configBanner = document.getElementById('configBanner');
+  const pendingBanner = document.getElementById('pendingBanner');
+  const pendingText = document.getElementById('pendingText');
   const sourceUrlLabel = document.getElementById('sourceUrlLabel');
 
   sourceUrlLabel.textContent = SHEET_URL.length > 46 ? SHEET_URL.slice(0, 46) + '…' : SHEET_URL;
   sourceUrlLabel.title = SHEET_URL;
+  configBanner.classList.toggle('show', !WEBAPP_URL);
 
-  // ----- LOCAL EDIT PERSISTENCE -----
-  function loadEdits(){
-    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-    catch(e){ return {}; }
-  }
-  function saveEdits(edits){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(edits)); }catch(e){}
-  }
-  function rowKey(row, hdrs){
-    // Stable hash from the row's actual data values, so edits survive re-sync
-    // even if row order shifts, as long as the receipt's content is unchanged.
-    let str = hdrs.map(h => (row[h] || '').toString().trim()).join('|');
-    let hash = 0;
-    for (let i = 0; i < str.length; i++){
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return 'r' + hash;
-  }
+  // ================= LOCAL HELPERS =================
+  function loadJSON(key){ try{ return JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return {}; } }
+  function saveJSON(key, obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
 
-  // ----- SYNC STATUS UI -----
   function setSyncState(state, message){
     syncDot.className = 'sync-dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' err' : '');
     syncLabel.textContent = message;
@@ -464,13 +408,10 @@
     refreshSpin.classList.toggle('on', state === 'loading');
     refreshBtn.disabled = state === 'loading';
   }
-  function showError(msg){
-    errorText.textContent = msg;
-    errorBanner.classList.add('show');
-  }
+  function showError(msg){ errorText.textContent = msg; errorBanner.classList.add('show'); }
   function hideError(){ errorBanner.classList.remove('show'); }
 
-  // ----- FETCH FROM GOOGLE SHEET -----
+  // ================= FETCH SHEET (READ) =================
   async function syncFromSheet(){
     setSyncState('loading', 'Syncing…');
     hideError();
@@ -481,16 +422,82 @@
       if (!text || text.trim().length === 0) throw new Error('Empty response');
       loadCSV(text);
       setSyncState('ok', 'Synced from log');
+      flushPendingWrites();
     }catch(err){
       setSyncState('error', 'Sync failed');
       showError('Could not reach the liquidation log (' + err.message + '). Showing the last loaded data if any, or use "Load CSV manually" below.');
     }
   }
-
   retryBtn.addEventListener('click', syncFromSheet);
   refreshBtn.addEventListener('click', syncFromSheet);
 
-  // ----- HELPERS -----
+  // ================= WRITE-BACK (Apps Script) =================
+  async function postUpdate(rowNum, status, remark){
+    if (!WEBAPP_URL) return false;
+    try{
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight
+        body: JSON.stringify({ row: rowNum, status: status, remark: remark })
+      });
+      if (!res.ok) return false;
+      const data = await res.json().catch(() => null);
+      return !data || data.ok !== false;
+    }catch(e){ return false; }
+  }
+
+  function queuePendingWrite(rowNum, status, remark){
+    const pending = loadJSON(PENDING_KEY);
+    pending[rowNum] = { status, remark };
+    saveJSON(PENDING_KEY, pending);
+    updatePendingBanner();
+  }
+  function clearPendingWrite(rowNum){
+    const pending = loadJSON(PENDING_KEY);
+    delete pending[rowNum];
+    saveJSON(PENDING_KEY, pending);
+    updatePendingBanner();
+  }
+  function updatePendingBanner(){
+    const pending = loadJSON(PENDING_KEY);
+    const n = Object.keys(pending).length;
+    if (n > 0){
+      pendingText.textContent = n + (n === 1 ? ' change hasn\u2019t' : ' changes haven\u2019t') + ' reached the sheet yet — retrying…';
+      pendingBanner.classList.add('show');
+    } else {
+      pendingBanner.classList.remove('show');
+    }
+  }
+  async function flushPendingWrites(){
+    if (!WEBAPP_URL) return;
+    const pending = loadJSON(PENDING_KEY);
+    const rows = Object.keys(pending);
+    for (const rowNum of rows){
+      const ok = await postUpdate(rowNum, pending[rowNum].status, pending[rowNum].remark);
+      if (ok) clearPendingWrite(rowNum);
+    }
+  }
+  setInterval(flushPendingWrites, PENDING_RETRY_MS);
+
+  async function commitEdit(row, status, remark){
+    row._status = status;
+    row._remark = remark;
+    if (!WEBAPP_URL){
+      // local-only fallback until the Apps Script URL is configured
+      const local = loadJSON(LOCAL_FALLBACK_KEY);
+      local[row._row] = { status, remark };
+      saveJSON(LOCAL_FALLBACK_KEY, local);
+      return;
+    }
+    row._flag = 'saving';
+    renderTable();
+    const ok = await postUpdate(row._row, status, remark);
+    row._flag = ok ? null : 'queued';
+    if (!ok) queuePendingWrite(row._row, status, remark); else clearPendingWrite(row._row);
+    renderTable();
+  }
+
+  // ================= RENDER HELPERS =================
   function updateStats(){
     const data = filteredData.length ? filteredData : currentData;
     const settled = data.filter(r => r._status === 'Settled').length;
@@ -501,7 +508,6 @@
     countPending.textContent = pending;
     countIncomplete.textContent = incomplete;
     countTotal.textContent = total;
-
     document.getElementById('legSettled').textContent = settled;
     document.getElementById('legIncomplete').textContent = incomplete;
     document.getElementById('legPending').textContent = pending;
@@ -582,15 +588,17 @@
       const originalIdx = currentData.indexOf(row);
       const status = row._status || 'Pending';
       const optionClass = status === 'Settled' ? 'option-settled' : status === 'Pending' ? 'option-pending' : 'option-incomplete';
+      const busy = row._flag === 'saving';
+      const flagDot = row._flag ? `<span class="row-flag ${row._flag}" title="${row._flag === 'saving' ? 'Saving…' : 'Not yet synced — retrying'}"></span>` : '';
       tbodyHtml += '<tr>';
       tbodyHtml += `<td style="position:sticky;left:0;background:white;z-index:5;">
-        <select class="status-select ${optionClass}" data-index="${originalIdx}" data-action="status">
+        <select class="status-select ${optionClass}" data-index="${originalIdx}" data-action="status" ${busy?'disabled':''}>
           <option value="Pending" ${status==='Pending'?'selected':''}>⏳ Pending</option>
           <option value="Incomplete" ${status==='Incomplete'?'selected':''}>⚠️ Incomplete</option>
           <option value="Settled" ${status==='Settled'?'selected':''}>✅ Settled</option>
-        </select></td>`;
+        </select>${flagDot}</td>`;
       tbodyHtml += `<td style="position:sticky;left:118px;background:white;z-index:5;">
-        <input class="remark-input" type="text" data-index="${originalIdx}" data-action="remark" value="${escapeHtml(row._remark||'')}" placeholder="Add note...">
+        <input class="remark-input" type="text" data-index="${originalIdx}" data-action="remark" value="${escapeHtml(row._remark||'')}" placeholder="Add note..." ${busy?'disabled':''}>
         </td>`;
       visibleHeaders.forEach(h => {
         const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
@@ -605,8 +613,7 @@
       sel.addEventListener('change', function(){
         const idx = parseInt(this.dataset.index);
         if (!isNaN(idx) && currentData[idx]){
-          currentData[idx]._status = this.value;
-          persistRowEdit(currentData[idx]);
+          commitEdit(currentData[idx], this.value, currentData[idx]._remark || '');
           if (filteredData.length) applySearch(); else renderTable();
         }
       });
@@ -615,12 +622,10 @@
       inp.addEventListener('change', function(){
         const idx = parseInt(this.dataset.index);
         if (!isNaN(idx) && currentData[idx]){
-          currentData[idx]._remark = this.value;
-          persistRowEdit(currentData[idx]);
+          commitEdit(currentData[idx], currentData[idx]._status || 'Pending', this.value);
         }
       });
     });
-
     tableHead.querySelectorAll('th[data-sort]').forEach(th => {
       th.addEventListener('click', function(){
         const col = this.dataset.sort;
@@ -630,24 +635,14 @@
     });
   }
 
-  function sortArrow(col){
-    if (sortCol !== col) return '↕';
-    return sortDir === 1 ? '↑' : '↓';
-  }
-
-  function persistRowEdit(row){
-    const edits = loadEdits();
-    const key = rowKey(row, headers);
-    edits[key] = { status: row._status, remark: row._remark };
-    saveEdits(edits);
-  }
+  function sortArrow(col){ if (sortCol !== col) return '↕'; return sortDir === 1 ? '↑' : '↓'; }
 
   function escapeHtml(text){
     if (!text) return '';
     return String(text).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   }
 
-  // ----- COLUMN VISIBILITY -----
+  // ================= COLUMN VISIBILITY =================
   function rebuildColumnCheckboxes(){
     if (headers.length === 0){
       colCheckboxList.innerHTML = '<div style="color:#94a3b8;font-size:.78rem;">No columns loaded</div>';
@@ -668,37 +663,49 @@
     updateColBadge();
   }
 
-  // ----- LOAD + MERGE DATA -----
+  // ================= LOAD + PARSE =================
   function loadCSV(csvText){
     const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
-    if (lines.length < 2){
-      showError('The data source returned no rows.');
-      return;
-    }
+    if (lines.length < 2){ showError('The data source returned no rows.'); return; }
     const rawHeaders = parseCSVLine(lines[0]);
-    const newHeaders = rawHeaders.map(h => h.trim());
-    const edits = loadEdits();
+    const allHeaders = rawHeaders.map(h => h.trim());
+
+    // Columns A/B are Status and Remarks in the sheet — detect by name, fall back to position 0/1.
+    let statusIdx = allHeaders.findIndex(h => /^status$/i.test(h));
+    let remarkIdx = allHeaders.findIndex(h => /^remarks?$/i.test(h));
+    if (statusIdx === -1) statusIdx = 0;
+    if (remarkIdx === -1) remarkIdx = 1;
+
+    const dataHeaders = allHeaders.filter((h, i) => i !== statusIdx && i !== remarkIdx);
+    const pending = loadJSON(PENDING_KEY);
+    const localFallback = WEBAPP_URL ? {} : loadJSON(LOCAL_FALLBACK_KEY);
 
     const newData = [];
     for (let i = 1; i < lines.length; i++){
       const values = parseCSVLine(lines[i]);
       if (values.length === 0 || values.every(v => v.trim() === '')) continue;
       const row = {};
-      newHeaders.forEach((h, idx) => { row[h] = idx < values.length ? values[idx].trim() : ''; });
-      const key = rowKey(row, newHeaders);
-      const saved = edits[key];
-      row._status = saved ? saved.status : 'Pending';
-      row._remark = saved ? saved.remark : '';
+      allHeaders.forEach((h, idx) => {
+        if (idx === statusIdx || idx === remarkIdx) return;
+        row[h] = idx < values.length ? values[idx].trim() : '';
+      });
+      const sheetRowNum = i + 1; // header is row 1, data starts row 2
+      row._row = sheetRowNum;
+      let status = (statusIdx < values.length ? values[statusIdx].trim() : '') || 'Pending';
+      let remark = remarkIdx < values.length ? values[remarkIdx].trim() : '';
+
+      // A write still in flight/queued wins over what the sheet currently shows.
+      if (pending[sheetRowNum]){ status = pending[sheetRowNum].status; remark = pending[sheetRowNum].remark; row._flag = 'queued'; }
+      else if (localFallback[sheetRowNum]){ status = localFallback[sheetRowNum].status; remark = localFallback[sheetRowNum].remark; }
+
+      row._status = status;
+      row._remark = remark;
       newData.push(row);
     }
 
-    if (newData.length === 0){
-      showError('The data source has a header row but no data rows yet.');
-      return;
-    }
+    if (newData.length === 0){ showError('The data source has a header row but no data rows yet.'); return; }
 
-    headers = newHeaders;
-    // preserve visibility choices for columns that still exist
+    headers = dataHeaders;
     const nextVisibility = {};
     headers.forEach(h => { nextVisibility[h] = columnVisibility[h] !== false; });
     columnVisibility = nextVisibility;
@@ -708,6 +715,7 @@
     if (searchTerm) applySearch();
     rebuildColumnCheckboxes();
     renderTable();
+    updatePendingBanner();
   }
 
   function parseCSVLine(line){
@@ -729,7 +737,7 @@
     return result;
   }
 
-  // ----- MANUAL FALLBACK UPLOAD -----
+  // ================= MANUAL FALLBACK UPLOAD =================
   fileInput.addEventListener('change', function(){
     const file = this.files[0];
     if (!file) return;
@@ -737,30 +745,6 @@
     reader.onload = ev => { loadCSV(ev.target.result); setSyncState('ok', 'Loaded from manual file'); syncTime.textContent = 'Manual upload'; hideError(); };
     reader.readAsText(file);
     this.value = '';
-  });
-
-  // ----- BUTTON EVENTS -----
-  resetBtn.addEventListener('click', function(){
-    if (currentData.length === 0) return;
-    if (confirm('Reset all statuses on this screen to "Pending"? This clears saved statuses for every visible receipt.')){
-      const edits = loadEdits();
-      currentData.forEach(row => {
-        row._status = 'Pending';
-        row._remark = '';
-        delete edits[rowKey(row, headers)];
-      });
-      saveEdits(edits);
-      filteredData = [];
-      searchBox.value = ''; searchTerm = '';
-      renderTable();
-    }
-  });
-
-  clearEditsBtn.addEventListener('click', function(){
-    if (confirm('Clear all saved statuses and remarks from this browser? This cannot be undone.')){
-      localStorage.removeItem(STORAGE_KEY);
-      syncFromSheet();
-    }
   });
 
   searchBox.addEventListener('input', function(){ searchTerm = this.value; applySearch(); });
@@ -807,7 +791,7 @@
     URL.revokeObjectURL(url);
   });
 
-  // ----- INIT -----
+  // ================= INIT =================
   syncFromSheet();
   setInterval(syncFromSheet, AUTO_REFRESH_MS);
 })();
