@@ -170,15 +170,17 @@
     display: flex;
     border-bottom: 2px solid var(--line-soft);
     background: #f6f8fb;
+    flex-wrap: wrap;
   }
   .tab-btn {
     flex: 1;
-    padding: 12px 20px;
+    min-width: 120px;
+    padding: 12px 16px;
     background: transparent;
     border: none;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
-    font-size: .9rem;
+    font-size: .85rem;
     font-weight: 600;
     color: var(--ink-soft);
     transition: .2s;
@@ -204,7 +206,7 @@
     border-radius: 3px 3px 0 0;
   }
   .tab-btn .tab-badge {
-    font-size: .65rem;
+    font-size: .6rem;
     background: var(--brand-tint);
     color: var(--brand);
     padding: 0 8px;
@@ -213,6 +215,10 @@
     font-weight: 600;
   }
   .tab-btn .tab-badge.filter-badge {
+    background: var(--pending-bg);
+    color: var(--pending);
+  }
+  .tab-btn .tab-badge.unsettled-badge {
     background: var(--pending-bg);
     color: var(--pending);
   }
@@ -230,27 +236,13 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Tab 1: Overview specific */
-  .tab-content .kpi-overview {
-    margin-top: 0;
-  }
-  .tab-content .charts-section {
-    margin-top: 16px;
-  }
-  .tab-content .gauge-card {
-    margin-top: 16px;
-  }
-
-  /* Tab 2: Filtered View specific */
-  .tab-content .filtered-kpi-section {
-    margin-top: 0;
-  }
-  .tab-content .toolbar {
-    margin-top: 0;
-  }
-  .tab-content .table-wrap {
-    margin-top: 16px;
-  }
+  /* Tab content styles */
+  .tab-content .kpi-overview { margin-top: 0; }
+  .tab-content .charts-section { margin-top: 16px; }
+  .tab-content .gauge-card { margin-top: 16px; }
+  .tab-content .filtered-kpi-section { margin-top: 0; }
+  .tab-content .toolbar { margin-top: 0; }
+  .tab-content .table-wrap { margin-top: 16px; }
 
   /* KPI Overview - 3 columns */
   .kpi-overview {
@@ -310,18 +302,9 @@
     border-radius: 10px;
     line-height: 16px;
   }
-  .kpi-group .group-title .badge-sm.total-badge {
-    background: var(--brand-tint);
-    color: var(--brand);
-  }
-  .kpi-group .group-title .badge-sm.settled-badge {
-    background: var(--settled-bg);
-    color: var(--settled);
-  }
-  .kpi-group .group-title .badge-sm.unsettled-badge {
-    background: var(--pending-bg);
-    color: var(--pending);
-  }
+  .kpi-group .group-title .badge-sm.total-badge { background: var(--brand-tint); color: var(--brand); }
+  .kpi-group .group-title .badge-sm.settled-badge { background: var(--settled-bg); color: var(--settled); }
+  .kpi-group .group-title .badge-sm.unsettled-badge { background: var(--pending-bg); color: var(--pending); }
   .kpi-items {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -334,29 +317,15 @@
     padding: 3px 0;
     border-bottom: 1px solid var(--line-soft);
   }
-  .kpi-item .label {
-    font-size: .78rem;
-    color: var(--ink-soft);
-    font-weight: 500;
-  }
-  .kpi-item .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--ink);
-  }
+  .kpi-item .label { font-size: .78rem; color: var(--ink-soft); font-weight: 500; }
+  .kpi-item .value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; color: var(--ink); }
   .kpi-item .value.settled-color { color: var(--settled); }
   .kpi-item .value.pending-color { color: var(--pending); }
   .kpi-item .value.rate-color { color: var(--brand); }
   .kpi-item .value.big { font-size: 1.2rem; }
 
-  @media (max-width: 1000px) {
-    .kpi-overview .overview-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 700px) {
-    .kpi-overview .overview-grid { grid-template-columns: 1fr; }
-    .kpi-items { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 1000px) { .kpi-overview .overview-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px) { .kpi-overview .overview-grid { grid-template-columns: 1fr; } .kpi-items { grid-template-columns: 1fr; } }
 
   /* Charts Section */
   .charts-section {
@@ -393,23 +362,17 @@
   .chart-card canvas { max-height: 180px; max-width: 100%; }
   .chart-container { position: relative; height: 180px; }
 
-  /* Full-width trend charts */
   .trend-charts {
     grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
-  .trend-charts .chart-card {
-    grid-column: auto;
-  }
+  .trend-charts .chart-card { grid-column: auto; }
   .trend-charts .chart-card canvas { max-height: 200px; }
   .trend-charts .chart-card .chart-container { height: 200px; }
 
-  @media (max-width: 800px) {
-    .charts-section { grid-template-columns: 1fr; }
-    .trend-charts { grid-column: 1; }
-  }
+  @media (max-width: 800px) { .charts-section { grid-template-columns: 1fr; } .trend-charts { grid-column: 1; } }
 
   /* Filtered KPI section */
   .filtered-kpi-section {
@@ -461,14 +424,96 @@
     grid-template-columns: 1fr 1fr;
     gap: 4px 12px;
   }
-  .filtered-kpi-group .kpi-item .value {
-    font-size: .95rem;
-  }
+  .filtered-kpi-group .kpi-item .value { font-size: .95rem; }
 
-  @media (max-width: 800px) {
-    .filtered-kpi-grid { grid-template-columns: 1fr; }
-    .filtered-kpi-group .kpi-items { grid-template-columns: 1fr; }
+  @media (max-width: 800px) { .filtered-kpi-grid { grid-template-columns: 1fr; } .filtered-kpi-group .kpi-items { grid-template-columns: 1fr; } }
+
+  /* Unsettled List Tab */
+  .unsettled-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
   }
+  .unsettled-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .unsettled-stat-card .stat-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--pending);
+  }
+  .unsettled-stat-card .stat-label {
+    font-size: .78rem;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .unsettled-stat-card .stat-number.green { color: var(--settled); }
+  .unsettled-stat-card .stat-number.brand { color: var(--brand); }
+
+  .unsettled-table-wrap {
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    max-height: 55vh;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .unsettled-table-wrap table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  .unsettled-table-wrap th {
+    background: #f6f8fb;
+    text-align: left;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--line);
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .unsettled-table-wrap td {
+    padding: 8px 12px;
+    border-top: 1px solid var(--line-soft);
+    vertical-align: middle;
+  }
+  .unsettled-table-wrap tr:hover td { background: #fafcfe; }
+  .unsettled-table-wrap .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: .7rem;
+    font-weight: 600;
+  }
+  .unsettled-table-wrap .status-badge.pending { background: var(--pending-bg); color: var(--pending); }
+  .unsettled-table-wrap .status-badge.incomplete { background: var(--incomplete-bg); color: var(--incomplete); }
+
+  .unsettled-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .unsettled-actions .search-box {
+    min-width: 200px;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: .84rem;
+    font-family: 'Inter', sans-serif;
+    background: var(--surface);
+  }
+  .unsettled-actions .search-box:focus { outline: 2px solid var(--brand); border-color: transparent; }
 
   /* Gauge card */
   .gauge-card {
@@ -494,7 +539,6 @@
   .gauge-legend .sw.pending { background: var(--pending); }
   .gauge-legend b { color: var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
 
-  /* Toolbar */
   .toolbar {
     display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
     background: var(--surface); border: 1px solid var(--line);
@@ -554,7 +598,6 @@
   }
   .badge-count { background: var(--brand); color: #fff; border-radius: 50%; padding: 0 6px; font-size: .68rem; min-width: 18px; text-align: center; }
 
-  /* Table */
   .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); max-height: 65vh; background: var(--surface); box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; font-size: .86rem; }
   th {
@@ -590,7 +633,6 @@
   .empty-state { text-align: center; padding: 52px 20px; color: var(--ink-soft); }
   .empty-state .icon { font-size: 2rem; margin-bottom: 6px; }
 
-  /* Banners */
   .banner { display: none; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; font-size: .85rem; margin-top: 14px; border: 1px solid transparent; }
   .banner.show { display: flex; }
   .banner.error { background: var(--pending-bg); border-color: #f0c2c2; color: var(--pending); }
@@ -611,8 +653,10 @@
     .masthead { flex-direction: column; align-items: flex-start; }
     .source-tag { margin-left: 0; width: 100%; }
     .table-export-btn { margin-left: 0; }
-    .tab-btn { font-size: .8rem; padding: 10px 12px; }
+    .tab-btn { font-size: .75rem; padding: 10px 8px; min-width: 80px; }
     .tab-content { padding: 12px 14px 16px; }
+    .unsettled-summary-grid { grid-template-columns: 1fr; }
+    .unsettled-actions .search-box { min-width: 140px; }
   }
 </style>
 </head>
@@ -665,6 +709,10 @@
         🔎 Filtered View
         <span class="tab-badge filter-badge" id="filterTabBadge">0 rows</span>
       </button>
+      <button class="tab-btn" data-tab="tab3">
+        ⚠️ Unsettled List
+        <span class="tab-badge unsettled-badge" id="unsettledTabBadge">0</span>
+      </button>
     </div>
 
     <!-- TAB 1: Overview -->
@@ -676,7 +724,6 @@
           <span class="badge">All Data</span>
         </div>
         <div class="overview-grid">
-          <!-- TOTAL Group -->
           <div class="kpi-group">
             <div class="group-title">📋 TOTAL <span class="badge-sm total-badge">All Receipts</span></div>
             <div class="kpi-items" id="totalItems">
@@ -686,7 +733,6 @@
               <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
             </div>
           </div>
-          <!-- SETTLED Group -->
           <div class="kpi-group">
             <div class="group-title">✅ SETTLED <span class="badge-sm settled-badge">Completed</span></div>
             <div class="kpi-items" id="settledItems">
@@ -696,7 +742,6 @@
               <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color big" id="kpiSettledPct">0%</span></div>
             </div>
           </div>
-          <!-- UNSETTLED Group -->
           <div class="kpi-group">
             <div class="group-title">⏳ UNSETTLED <span class="badge-sm unsettled-badge">Pending + Incomplete</span></div>
             <div class="kpi-items" id="unsettledItems">
@@ -711,18 +756,14 @@
 
       <!-- Charts -->
       <div class="charts-section">
-        <!-- Donut Chart -->
         <div class="chart-card">
           <div class="chart-title">🍩 Settlement Breakdown <span class="badge-chart">Status</span></div>
           <div class="chart-container"><canvas id="donutChart"></canvas></div>
         </div>
-        <!-- Gauge Chart -->
         <div class="chart-card">
           <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
           <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
         </div>
-
-        <!-- Trend Charts -->
         <div class="trend-charts">
           <div class="chart-card">
             <div class="chart-title">⛽ Liters Trend <span class="badge-chart">Volume</span></div>
@@ -739,7 +780,6 @@
         </div>
       </div>
 
-      <!-- Gauge Bar -->
       <div class="gauge-card" style="margin-top:16px;">
         <div class="gauge-top">
           <span class="title">Liquidation progress</span>
@@ -761,14 +801,12 @@
 
     <!-- TAB 2: Filtered View -->
     <div class="tab-content" id="tab2">
-      <!-- Filtered KPI -->
       <div class="filtered-kpi-section">
         <div class="section-label">
           <span>🔎 Filtered Results</span>
           <span class="badge-filter" id="filterBadge">0 rows</span>
         </div>
         <div class="filtered-kpi-grid">
-          <!-- Filtered TOTAL -->
           <div class="filtered-kpi-group">
             <div class="group-title">📋 TOTAL</div>
             <div class="kpi-items" id="filtTotalItems">
@@ -778,7 +816,6 @@
               <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
             </div>
           </div>
-          <!-- Filtered SETTLED -->
           <div class="filtered-kpi-group">
             <div class="group-title">✅ SETTLED</div>
             <div class="kpi-items" id="filtSettledItems">
@@ -788,7 +825,6 @@
               <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color" id="filtSettledPct">0%</span></div>
             </div>
           </div>
-          <!-- Filtered UNSETTLED -->
           <div class="filtered-kpi-group">
             <div class="group-title">⏳ UNSETTLED</div>
             <div class="kpi-items" id="filtUnsettledItems">
@@ -801,7 +837,6 @@
         </div>
       </div>
 
-      <!-- Toolbar -->
       <div class="toolbar" style="margin-top:16px;">
         <div class="controls">
           <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts or vehicle...">
@@ -840,7 +875,6 @@
         </div>
       </div>
 
-      <!-- Table -->
       <div class="table-wrap" style="margin-top:16px;">
         <div style="display:flex;justify-content:flex-end;padding:8px 12px;background:#f6f8fb;border-bottom:1px solid var(--line);">
           <button id="tableExportBtn" class="primary" style="font-size:.78rem;padding:4px 12px;">⬇ Export Table CSV</button>
@@ -853,6 +887,71 @@
         <table id="dataTable" style="display:none;">
           <thead id="tableHead"></thead>
           <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: Unsettled List -->
+    <div class="tab-content" id="tab3">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--pending);">⚠️ Unsettled Receipts</h3>
+        <span style="font-size:.85rem;color:var(--ink-soft);">Receipts that need immediate action</span>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="unsettled-summary-grid" id="unsettledSummary">
+        <div class="unsettled-stat-card">
+          <div class="stat-number" id="unsettledTotalReceipts">0</div>
+          <div class="stat-label">Total Unsettled Receipts</div>
+        </div>
+        <div class="unsettled-stat-card">
+          <div class="stat-number" id="unsettledTotalLiters">0</div>
+          <div class="stat-label">Total Unsettled Liters</div>
+        </div>
+        <div class="unsettled-stat-card">
+          <div class="stat-number" id="unsettledTotalAmount">₱0</div>
+          <div class="stat-label">Total Unsettled Amount</div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="unsettled-actions">
+        <input type="text" id="unsettledSearchBox" class="search-box" placeholder="🔍 Search vehicle, site, receipt...">
+        <select class="filter-select" id="unsettledStatusFilter">
+          <option value="all">All Status</option>
+          <option value="Pending">⏳ Pending</option>
+          <option value="Incomplete">⚠️ Incomplete</option>
+        </select>
+        <select class="filter-select" id="unsettledMonthFilter" style="display:none;">
+          <option value="all">All months</option>
+        </select>
+        <button class="ghost" id="unsettledClearFilters">✕ Clear filters</button>
+        <button id="unsettledExportBtn" class="primary" style="margin-left:auto;">💾 Export Unsettled CSV</button>
+      </div>
+
+      <!-- Unsettled Table -->
+      <div class="unsettled-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vehicle Plate</th>
+              <th>Status</th>
+              <th>Quantity (Liters)</th>
+              <th>Amount</th>
+              <th>Site Name</th>
+              <th>Delivery Date</th>
+              <th>Time</th>
+              <th>Receipt Number</th>
+            </tr>
+          </thead>
+          <tbody id="unsettledTableBody">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:40px;color:var(--ink-soft);">
+                <div class="icon" style="font-size:2rem;">⛽</div>
+                <p>Loading unsettled receipts…</p>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -898,6 +997,8 @@
   // ========== STATE ==========
   let currentData = [];
   let filteredData = [];
+  let unsettledData = [];
+  let unsettledFilteredData = [];
   let headers = [];
   let columnVisibility = {};
   let sortCol = null;
@@ -906,10 +1007,16 @@
   let dateCol = null;
   let litersCol = null;
   let amountCol = null;
+  let siteCol = null;
+  let receiptCol = null;
+  let timeCol = null;
   let vehicleFilter = 'all';
   let monthFilter = 'all';
   let statusFilter = 'all';
   let searchTerm = '';
+  let unsettledSearchTerm = '';
+  let unsettledStatusFilter = 'all';
+  let unsettledMonthFilter = 'all';
 
   // Chart instances
   let donutChart = null;
@@ -922,7 +1029,13 @@
   const fileInput = document.getElementById('csvUpload');
   const exportBtn = document.getElementById('exportBtn');
   const tableExportBtn = document.getElementById('tableExportBtn');
+  const unsettledExportBtn = document.getElementById('unsettledExportBtn');
   const searchBox = document.getElementById('searchBox');
+  const unsettledSearchBox = document.getElementById('unsettledSearchBox');
+  const unsettledStatusFilter = document.getElementById('unsettledStatusFilter');
+  const unsettledMonthFilter = document.getElementById('unsettledMonthFilter');
+  const unsettledClearFilters = document.getElementById('unsettledClearFilters');
+  const unsettledTableBody = document.getElementById('unsettledTableBody');
   const tableHead = document.getElementById('tableHead');
   const tableBody = document.getElementById('tableBody');
   const dataTable = document.getElementById('dataTable');
@@ -951,10 +1064,16 @@
   const sourceUrlLabel = document.getElementById('sourceUrlLabel');
   const filterBadge = document.getElementById('filterBadge');
   const filterTabBadge = document.getElementById('filterTabBadge');
+  const unsettledTabBadge = document.getElementById('unsettledTabBadge');
   const vehicleFilterSelect = document.getElementById('vehicleFilterSelect');
   const monthFilterSelect = document.getElementById('monthFilterSelect');
   const statusFilterSelect = document.getElementById('statusFilterSelect');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+  // Unsettled summary elements
+  const unsettledTotalReceipts = document.getElementById('unsettledTotalReceipts');
+  const unsettledTotalLiters = document.getElementById('unsettledTotalLiters');
+  const unsettledTotalAmount = document.getElementById('unsettledTotalAmount');
 
   // Tabs
   const tabBtns = document.querySelectorAll('.tab-btn');
@@ -993,6 +1112,11 @@
       tabContents.forEach(c => c.classList.remove('active'));
       this.classList.add('active');
       document.getElementById(tabId).classList.add('active');
+      
+      // Refresh unsettled table when tab is opened
+      if (tabId === 'tab3') {
+        renderUnsettledTable();
+      }
     });
   });
 
@@ -1170,7 +1294,10 @@
     
     vehicleCol = dataHeaders.find(h => /vehicle.*license|plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
+    timeCol = dataHeaders.find(h => /time/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
+    siteCol = dataHeaders.find(h => /site.*name|site/i.test(h)) || null;
+    receiptCol = dataHeaders.find(h => /receipt.*number|receipt.*num/i.test(h)) || null;
     
     amountCol = dataHeaders.find(h => {
       const lower = h.toLowerCase();
@@ -1203,6 +1330,9 @@
     console.log('Liters column:', litersCol);
     console.log('Vehicle column:', vehicleCol);
     console.log('Date column:', dateCol);
+    console.log('Site column:', siteCol);
+    console.log('Receipt column:', receiptCol);
+    console.log('Time column:', timeCol);
   }
 
   function rebuildFilterOptions(){
@@ -1227,7 +1357,23 @@
       monthFilterSelect.value = sorted.includes(prev) ? prev : 'all';
       monthFilter = monthFilterSelect.value;
       monthFilterSelect.style.display = '';
-    } else { monthFilterSelect.style.display = 'none'; monthFilter = 'all'; }
+      
+      // Also update unsettled month filter
+      const uPrev = unsettledMonthFilter.value;
+      unsettledMonthFilter.innerHTML = '<option value="all">All months</option>' + sorted.map(k => {
+        const [y, mo] = k.split('-');
+        const label = new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleString('en-US', {month:'long', year:'numeric'});
+        return `<option value="${k}">${label}</option>`;
+      }).join('');
+      unsettledMonthFilter.value = sorted.includes(uPrev) ? uPrev : 'all';
+      unsettledMonthFilter = unsettledMonthFilter.value;
+      unsettledMonthFilter.style.display = '';
+    } else { 
+      monthFilterSelect.style.display = 'none'; 
+      monthFilter = 'all';
+      unsettledMonthFilter.style.display = 'none';
+      unsettledMonthFilter = 'all';
+    }
   }
 
   // ===== CHART FUNCTIONS =====
@@ -1631,37 +1777,30 @@
     const unsettledPct = total ? Math.round(unsettled/total*100) : 0;
 
     if (!isFiltered) {
-      // TOTAL
       kpiTotalReceipts.textContent = total;
       kpiTotalLiters.textContent = formatNumber(totalLiters);
       kpiTotalAmount.textContent = formatCurrency(totalAmount);
       kpiSettledRate.textContent = settledRate + '%';
-      
-      // SETTLED
       kpiSettledReceipts.textContent = settled;
       kpiSettledLiters.textContent = formatNumber(settledLiters);
       kpiSettledAmount.textContent = formatCurrency(settledAmount);
       kpiSettledPct.textContent = settledPct + '%';
-      
-      // UNSETTLED
       kpiUnsettledCount.textContent = unsettled;
       kpiUnsettledLiters.textContent = formatNumber(unsettledLiters);
       kpiUnsettledAmount.textContent = formatCurrency(unsettledAmount);
       kpiUnsettledPct.textContent = unsettledPct + '%';
+      
+      // Update unsettled tab badge
+      unsettledTabBadge.textContent = unsettled;
     } else {
-      // Filtered TOTAL
       filtTotalReceipts.textContent = total;
       filtTotalLiters.textContent = formatNumber(totalLiters);
       filtTotalAmount.textContent = formatCurrency(totalAmount);
       filtSettledRate.textContent = settledRate + '%';
-      
-      // Filtered SETTLED
       filtSettledReceipts.textContent = settled;
       filtSettledLiters.textContent = formatNumber(settledLiters);
       filtSettledAmount.textContent = formatCurrency(settledAmount);
       filtSettledPct.textContent = settledPct + '%';
-      
-      // Filtered UNSETTLED
       filtUnsettledCount.textContent = unsettled;
       filtUnsettledLiters.textContent = formatNumber(unsettledLiters);
       filtUnsettledAmount.textContent = formatCurrency(unsettledAmount);
@@ -1674,7 +1813,104 @@
     // Update charts with the data (only for main data, not filtered)
     if (!isFiltered) {
       updateCharts(data);
+      // Also update unsettled data
+      updateUnsettledData();
     }
+  }
+
+  function updateUnsettledData() {
+    // Get all unsettled receipts (Pending + Incomplete)
+    unsettledData = currentData.filter(r => r._status === 'Pending' || r._status === 'Incomplete');
+    applyUnsettledFilters();
+  }
+
+  function applyUnsettledFilters() {
+    const term = unsettledSearchTerm.toLowerCase().trim();
+    const statusFilter = unsettledStatusFilter;
+    const monthFilter = unsettledMonthFilter;
+    
+    unsettledFilteredData = unsettledData.filter(row => {
+      // Search
+      if (term) {
+        let match = false;
+        const searchFields = [vehicleCol, siteCol, receiptCol, dateCol, timeCol, amountCol, litersCol];
+        for (const field of searchFields) {
+          if (field && String(row[field] || '').toLowerCase().includes(term)) {
+            match = true;
+            break;
+          }
+        }
+        if (String(row._status || '').toLowerCase().includes(term)) match = true;
+        if (!match) return false;
+      }
+      // Status filter
+      if (statusFilter !== 'all' && row._status !== statusFilter) return false;
+      // Month filter
+      if (monthFilter !== 'all' && dateCol) {
+        const d = parseFlexibleDate(row[dateCol]);
+        if (!d || monthKey(d) !== monthFilter) return false;
+      }
+      return true;
+    });
+    renderUnsettledTable();
+  }
+
+  function renderUnsettledTable() {
+    const data = unsettledFilteredData;
+    
+    // Update summary stats
+    const totalReceipts = data.length;
+    let totalLiters = 0;
+    let totalAmount = 0;
+    if (litersCol) {
+      totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+    }
+    if (amountCol) {
+      totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+    }
+    unsettledTotalReceipts.textContent = totalReceipts;
+    unsettledTotalLiters.textContent = formatNumber(totalLiters);
+    unsettledTotalAmount.textContent = formatCurrency(totalAmount);
+    
+    if (data.length === 0) {
+      unsettledTableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center;padding:40px;color:var(--ink-soft);">
+            <div class="icon" style="font-size:2rem;">✅</div>
+            <p>No unsettled receipts found</p>
+            <p style="font-size:.85rem;">All receipts have been settled!</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    
+    let html = '';
+    data.forEach(row => {
+      const status = row._status || 'Pending';
+      const statusClass = status.toLowerCase();
+      const vehicle = vehicleCol ? (row[vehicleCol] || '—') : '—';
+      const liters = litersCol ? formatNumber(parseAmount(row[litersCol])) : '—';
+      const amount = amountCol ? formatCurrency(parseAmount(row[amountCol])) : '—';
+      const site = siteCol ? (row[siteCol] || '—') : '—';
+      const date = dateCol ? (row[dateCol] || '—') : '—';
+      const time = timeCol ? (row[timeCol] || '—') : '—';
+      const receipt = receiptCol ? (row[receiptCol] || '—') : '—';
+      
+      html += `
+        <tr>
+          <td><strong>${escapeHtml(vehicle)}</strong></td>
+          <td><span class="status-badge ${statusClass}">${status === 'Pending' ? '⏳ Pending' : '⚠️ Incomplete'}</span></td>
+          <td>${liters}</td>
+          <td>${amount}</td>
+          <td>${escapeHtml(site)}</td>
+          <td>${escapeHtml(date)}</td>
+          <td>${escapeHtml(time)}</td>
+          <td>${escapeHtml(receipt)}</td>
+        </tr>
+      `;
+    });
+    unsettledTableBody.innerHTML = html;
   }
 
   function updateStats(){
@@ -1888,6 +2124,35 @@
     URL.revokeObjectURL(url);
   }
 
+  function exportUnsettledCSV() {
+    const data = unsettledFilteredData;
+    if (!data || data.length === 0) { alert('No unsettled data to export.'); return; }
+    
+    const headers = ['Vehicle Plate', 'Status', 'Quantity (Liters)', 'Amount', 'Site Name', 'Delivery Date', 'Time', 'Receipt Number'];
+    let csvContent = headers.join(',') + '\n';
+    
+    data.forEach(row => {
+      const status = row._status || 'Pending';
+      const vehicle = vehicleCol ? (row[vehicleCol] || '—') : '—';
+      const liters = litersCol ? parseAmount(row[litersCol]) : 0;
+      const amount = amountCol ? parseAmount(row[amountCol]) : 0;
+      const site = siteCol ? (row[siteCol] || '—') : '—';
+      const date = dateCol ? (row[dateCol] || '—') : '—';
+      const time = timeCol ? (row[timeCol] || '—') : '—';
+      const receipt = receiptCol ? (row[receiptCol] || '—') : '—';
+      
+      csvContent += `"${vehicle}","${status}",${liters},"${amount}","${site}","${date}","${time}","${receipt}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `unsettled_list_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function loadCSV(csvText){
     const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
     if (lines.length < 2){ showError('The data source returned no rows.'); return; }
@@ -1932,6 +2197,9 @@
     rebuildColumnCheckboxes();
     renderTable();
     updatePendingBanner();
+    
+    // Update unsettled data
+    updateUnsettledData();
   }
 
   function parseCSVLine(line){
@@ -1975,6 +2243,30 @@
     monthFilter = 'all'; monthFilterSelect.value = 'all';
     applyFilters();
   });
+
+  // Unsettled event listeners
+  unsettledSearchBox.addEventListener('input', function() {
+    unsettledSearchTerm = this.value;
+    applyUnsettledFilters();
+  });
+  unsettledStatusFilter.addEventListener('change', function() {
+    unsettledStatusFilter = this.value;
+    applyUnsettledFilters();
+  });
+  unsettledMonthFilter.addEventListener('change', function() {
+    unsettledMonthFilter = this.value;
+    applyUnsettledFilters();
+  });
+  unsettledClearFilters.addEventListener('click', function() {
+    unsettledSearchTerm = '';
+    unsettledSearchBox.value = '';
+    unsettledStatusFilter = 'all';
+    unsettledStatusFilter.value = 'all';
+    unsettledMonthFilter = 'all';
+    unsettledMonthFilter.value = 'all';
+    applyUnsettledFilters();
+  });
+  unsettledExportBtn.addEventListener('click', exportUnsettledCSV);
 
   colVisibilityToggle.addEventListener('click', function(e){
     e.stopPropagation();
