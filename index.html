@@ -77,6 +77,14 @@
       align-items: center;
       gap: 10px;
     }
+    .masthead-logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 6px;
+      flex-shrink: 0;
+      background: #eef6f4;
+    }
     .masthead .eyebrow {
       font-size: .72rem;
       text-transform: uppercase;
@@ -1200,6 +1208,7 @@
       .tabs-header,
       .toolbar,
       .unsettled-actions,
+      .unsettled-tab-header,
       .footer-actions,
       .banner,
       .col-visibility,
@@ -1388,7 +1397,7 @@
     <div class="masthead">
       <div>
         <div class="eyebrow">DA-RFO I · General Services Section</div>
-        <h1>⛽ Gasoline Liquidation Tracker</h1>
+        <h1><img src="https://drive.google.com/thumbnail?id=1vdIFkMGRhweG5HNL59yiIyvvaP9cF9xh&sz=w200" alt="DA-RFO I logo" class="masthead-logo"> Gasoline Liquidation Tracker</h1>
         <div style="font-size:.85rem;color:#c7ddd8;">Two-way synced with the official liquidation log</div>
       </div>
       <div class="sync-panel">
@@ -1577,7 +1586,7 @@
 
       <!-- TAB 3: Unsettled List (grouped by vehicle, collapsed by default) -->
       <div class="tab-content" id="tab3">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <div class="unsettled-tab-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
           <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--pending);">⚠️ Unsettled Receipts</h3>
           <span style="font-size:.85rem;color:var(--ink-soft);">Grouped by vehicle · click <strong>+</strong> to expand</span>
         </div>
