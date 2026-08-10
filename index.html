@@ -111,59 +111,83 @@
   .refresh-btn .spin.on { animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* KPI Groups */
-  .kpi-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+  /* Overview KPI Groups */
+  .kpi-overview {
     margin-top: 16px;
-  }
-  .kpi-group {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 16px 18px 18px;
     box-shadow: var(--shadow);
   }
-  .kpi-group .group-title {
+  .kpi-overview .overview-title {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
-    font-size: .95rem;
+    font-size: 1rem;
     color: var(--ink);
     border-bottom: 2px solid var(--line-soft);
     padding-bottom: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .kpi-overview .overview-title .badge {
+    font-size: .7rem;
+    font-weight: 600;
+    background: var(--brand-tint);
+    color: var(--brand);
+    padding: 0 10px;
+    border-radius: 12px;
+    line-height: 20px;
+  }
+  .kpi-overview .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .kpi-group {
+    background: #f9fbfd;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px 16px;
+  }
+  .kpi-group .group-title {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .kpi-group .group-title .badge {
-    font-size: .65rem;
+  .kpi-group .group-title .badge-sm {
+    font-size: .6rem;
     font-weight: 600;
-    background: var(--brand-tint);
-    color: var(--brand);
     padding: 0 8px;
-    border-radius: 12px;
-    line-height: 18px;
+    border-radius: 10px;
+    line-height: 16px;
   }
-  .kpi-group .group-title .badge.settled-badge {
+  .kpi-group .group-title .badge-sm.settled-badge {
     background: var(--settled-bg);
     color: var(--settled);
   }
-  .kpi-group .group-title .badge.pending-badge {
+  .kpi-group .group-title .badge-sm.pending-badge {
     background: var(--pending-bg);
     color: var(--pending);
   }
   .kpi-items {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px 16px;
+    gap: 4px 16px;
   }
   .kpi-item {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding: 4px 0;
+    padding: 3px 0;
     border-bottom: 1px solid var(--line-soft);
   }
   .kpi-item .label {
@@ -174,14 +198,17 @@
   .kpi-item .value {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: var(--ink);
   }
   .kpi-item .value.settled-color { color: var(--settled); }
   .kpi-item .value.pending-color { color: var(--pending); }
   .kpi-item .value.rate-color { color: var(--brand); }
-  .kpi-item .value.big {
-    font-size: 1.3rem;
+  .kpi-item .value.big { font-size: 1.2rem; }
+
+  @media (max-width: 800px) {
+    .kpi-overview .overview-grid { grid-template-columns: 1fr; }
+    .kpi-items { grid-template-columns: 1fr; }
   }
 
   /* Filtered KPI section */
@@ -239,12 +266,8 @@
     font-size: .95rem;
   }
 
-  @media (max-width: 900px) {
-    .kpi-section { grid-template-columns: 1fr; }
+  @media (max-width: 800px) {
     .filtered-kpi-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 600px) {
-    .kpi-items { grid-template-columns: 1fr; }
     .filtered-kpi-group .kpi-items { grid-template-columns: 1fr; }
   }
 
@@ -298,6 +321,12 @@
     font-size: .84rem; min-width: 200px; font-family: 'Inter', sans-serif; background: var(--surface);
   }
   .search-box:focus { outline: 2px solid var(--brand); border-color: transparent; }
+  .filter-select {
+    padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: .84rem; font-family: 'Inter', sans-serif; background: var(--surface);
+    color: var(--ink); cursor: pointer;
+  }
+  .filter-select:focus { outline: 2px solid var(--brand); border-color: transparent; }
   .stats {
     display: flex; gap: 22px; flex-wrap: wrap; margin-left: auto;
   }
@@ -369,11 +398,13 @@
   .source-tag code { background: var(--paper); padding: 2px 6px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
   .legend-chip { font-size: .78rem; color: var(--ink-soft); }
   .legend-chip span { padding: 2px 9px; border-radius: 12px; font-weight: 600; font-size: .74rem; }
+  .table-export-btn { margin-left: auto; }
   @media (max-width: 700px) {
     .stats { margin-left: 0; width: 100%; }
     .search-box { min-width: 140px; }
     .masthead { flex-direction: column; align-items: flex-start; }
     .source-tag { margin-left: 0; width: 100%; }
+    .table-export-btn { margin-left: 0; }
   }
 </style>
 </head>
@@ -397,47 +428,45 @@
     </div>
   </div>
 
-  <!-- KPI SECTION: Two groups side by side -->
-  <div class="kpi-section" id="kpiSection">
-    <!-- SUMMARY GROUP -->
-    <div class="kpi-group" id="summaryGroup">
-      <div class="group-title">
-        📊 Summary
-        <span class="badge">All data</span>
-      </div>
-      <div class="kpi-items" id="summaryItems">
-        <div class="kpi-item"><span class="label">Total Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
-        <div class="kpi-item"><span class="label">Total Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
-        <div class="kpi-item"><span class="label">Total Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
-        <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
-      </div>
+  <!-- OVERVIEW: Grouped Summary + Unsettled -->
+  <div class="kpi-overview" id="kpiOverview">
+    <div class="overview-title">
+      📊 Overview
+      <span class="badge">All data</span>
     </div>
-
-    <!-- UNSETTLED GROUP -->
-    <div class="kpi-group" id="unsettledGroup">
-      <div class="group-title">
-        ⏳ Unsettled
-        <span class="badge pending-badge">Pending + Incomplete</span>
+    <div class="overview-grid">
+      <!-- Summary Group -->
+      <div class="kpi-group">
+        <div class="group-title">📋 Summary <span class="badge-sm settled-badge">Settled</span></div>
+        <div class="kpi-items" id="summaryItems">
+          <div class="kpi-item"><span class="label">Total Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
+          <div class="kpi-item"><span class="label">Total Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Total Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
+        </div>
       </div>
-      <div class="kpi-items" id="unsettledItems">
-        <div class="kpi-item"><span class="label">No. of Unsettled Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
-        <div class="kpi-item"><span class="label">Unsettled Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
-        <div class="kpi-item"><span class="label">Unsettled Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
-        <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color big" id="kpiUnsettledRate">0%</span></div>
+      <!-- Unsettled Group -->
+      <div class="kpi-group">
+        <div class="group-title">⏳ Unsettled <span class="badge-sm pending-badge">Pending + Incomplete</span></div>
+        <div class="kpi-items" id="unsettledItems">
+          <div class="kpi-item"><span class="label">Unsettled Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
+          <div class="kpi-item"><span class="label">Unsettled Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Unsettled Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color big" id="kpiUnsettledRate">0%</span></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- FILTERED KPI SECTION -->
+  <!-- FILTERED VIEW -->
   <div class="filtered-kpi-section" id="filteredKpiSection">
     <div class="section-label">
       <span>🔎 Filtered view</span>
       <span class="badge-filter" id="filterBadge">0 rows</span>
     </div>
     <div class="filtered-kpi-grid" id="filteredKpiGrid">
-      <!-- Filtered Summary -->
       <div class="filtered-kpi-group">
-        <div class="group-title">📊 Summary</div>
+        <div class="group-title">📋 Summary</div>
         <div class="kpi-items" id="filteredSummaryItems">
           <div class="kpi-item"><span class="label">Receipts</span><span class="value" id="filtTotalReceipts">0</span></div>
           <div class="kpi-item"><span class="label">Liters</span><span class="value" id="filtTotalLiters">0</span></div>
@@ -445,7 +474,6 @@
           <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
         </div>
       </div>
-      <!-- Filtered Unsettled -->
       <div class="filtered-kpi-group">
         <div class="group-title">⏳ Unsettled</div>
         <div class="kpi-items" id="filteredUnsettledItems">
@@ -494,7 +522,13 @@
   <!-- toolbar -->
   <div class="toolbar">
     <div class="controls">
-      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts...">
+      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts or vehicle...">
+      <select class="filter-select" id="statusFilterSelect">
+        <option value="all">All Status</option>
+        <option value="Settled">✅ Settled</option>
+        <option value="Pending">⏳ Pending</option>
+        <option value="Incomplete">⚠️ Incomplete</option>
+      </select>
       <select class="filter-select" id="vehicleFilterSelect" style="display:none;">
         <option value="all">All vehicles</option>
       </select>
@@ -526,6 +560,9 @@
 
   <!-- table -->
   <div class="table-wrap" id="tableWrap">
+    <div style="display:flex;justify-content:flex-end;padding:8px 12px;background:#f6f8fb;border-bottom:1px solid var(--line);">
+      <button id="tableExportBtn" class="primary" style="font-size:.78rem;padding:4px 12px;">⬇ Export Table CSV</button>
+    </div>
     <div class="empty-state" id="emptyState">
       <div class="icon">⛽</div>
       <p>Connecting to the liquidation log…</p>
@@ -538,7 +575,7 @@
   </div>
 
   <div class="footer-actions">
-    <button id="exportBtn" class="primary">💾 Export CSV</button>
+    <button id="exportBtn" class="primary">💾 Export Full CSV</button>
     <span class="legend-chip">
       <span style="background:var(--settled-bg);color:var(--settled);">Settled</span>
       <span style="background:var(--pending-bg);color:var(--pending);">Pending</span>
@@ -571,11 +608,13 @@
   let amountCol = null;
   let vehicleFilter = 'all';
   let monthFilter = 'all';
+  let statusFilter = 'all';
   let searchTerm = '';
 
   // ========== DOM ==========
   const fileInput = document.getElementById('csvUpload');
   const exportBtn = document.getElementById('exportBtn');
+  const tableExportBtn = document.getElementById('tableExportBtn');
   const searchBox = document.getElementById('searchBox');
   const tableHead = document.getElementById('tableHead');
   const tableBody = document.getElementById('tableBody');
@@ -606,6 +645,7 @@
   const filterBadge = document.getElementById('filterBadge');
   const vehicleFilterSelect = document.getElementById('vehicleFilterSelect');
   const monthFilterSelect = document.getElementById('monthFilterSelect');
+  const statusFilterSelect = document.getElementById('statusFilterSelect');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 
   // KPI element references
@@ -757,7 +797,7 @@
   function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
 
   function detectSpecialColumns(dataHeaders){
-    vehicleCol = dataHeaders.find(h => /plate|vehicle|license/i.test(h)) || null;
+    vehicleCol = dataHeaders.find(h => /plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
@@ -810,7 +850,6 @@
     const unsettledRate = total ? Math.round(unsettled/total*100) : 0;
 
     if (!isFiltered) {
-      // Update main KPIs
       kpiTotalReceipts.textContent = total;
       kpiTotalLiters.textContent = formatNumber(totalLiters);
       kpiTotalAmount.textContent = formatCurrency(totalAmount);
@@ -820,7 +859,6 @@
       kpiUnsettledAmount.textContent = formatCurrency(unsettledAmount);
       kpiUnsettledRate.textContent = unsettledRate + '%';
     } else {
-      // Update filtered KPIs
       filtTotalReceipts.textContent = total;
       filtTotalLiters.textContent = formatNumber(totalLiters);
       filtTotalAmount.textContent = formatCurrency(totalAmount);
@@ -853,12 +891,10 @@
     document.getElementById('segIncomplete').style.width = (currentData.length ? currentData.filter(r=>r._status==='Incomplete').length/currentData.length*100 : 0) + '%';
     document.getElementById('segPending').style.width = (currentData.length ? currentData.filter(r=>r._status==='Pending').length/currentData.length*100 : 0) + '%';
 
-    // Update KPIs - main and filtered
     updateKPIs(currentData, false);
     if (filteredData.length) {
       updateKPIs(filteredData, true);
     } else {
-      // If no filter, show same as main in filtered section
       updateKPIs(currentData, true);
     }
   }
@@ -868,22 +904,32 @@
 
   function applyFilters(){
     const term = searchTerm.toLowerCase().trim();
-    if (!term && vehicleFilter === 'all' && monthFilter === 'all'){ filteredData = []; renderTable(); return; }
     filteredData = currentData.filter(row => {
+      // Search: check all headers + status + remark + vehicle column
       if (term){
         let match = false;
-        headers.forEach(h => { if (String(row[h] || '').toLowerCase().includes(term)) match = true; });
-        if (String(row._remark || '').toLowerCase().includes(term)) match = true;
-        if (String(row._status || '').toLowerCase().includes(term)) match = true;
+        // Check all data columns
+        for (const h of headers) {
+          if (String(row[h] || '').toLowerCase().includes(term)) { match = true; break; }
+        }
+        // Check status and remark
+        if (!match && String(row._status || '').toLowerCase().includes(term)) match = true;
+        if (!match && String(row._remark || '').toLowerCase().includes(term)) match = true;
+        // Check vehicle column specifically if it exists
+        if (!match && vehicleCol && String(row[vehicleCol] || '').toLowerCase().includes(term)) match = true;
         if (!match) return false;
       }
+      // Vehicle filter
       if (vehicleFilter !== 'all' && vehicleCol){
         if ((row[vehicleCol] || '').trim() !== vehicleFilter) return false;
       }
+      // Month filter
       if (monthFilter !== 'all' && dateCol){
         const d = parseFlexibleDate(row[dateCol]);
         if (!d || monthKey(d) !== monthFilter) return false;
       }
+      // Status filter
+      if (statusFilter !== 'all' && row._status !== statusFilter) return false;
       return true;
     });
     renderTable();
@@ -917,8 +963,8 @@
     if (!data.length){
       dataTable.style.display = 'none';
       emptyState.style.display = 'block';
-      if (currentData.length && filteredData.length === 0 && searchTerm){
-        emptyState.innerHTML = `<div class="icon">🔍</div><p>No results match "<strong>${escapeHtml(searchTerm)}</strong>"</p><p style="font-size:.85rem;">Try a different search term, or clear the search box.</p>`;
+      if (currentData.length && filteredData.length === 0 && (searchTerm || statusFilter !== 'all' || vehicleFilter !== 'all' || monthFilter !== 'all')){
+        emptyState.innerHTML = `<div class="icon">🔍</div><p>No results match your filters</p><p style="font-size:.85rem;">Try adjusting your search or filter criteria.</p>`;
       } else if (!currentData.length) {
         emptyState.innerHTML = `<div class="icon">⛽</div><p>Connecting to the liquidation log…</p><p style="font-size:.85rem;">If nothing loads, use <strong>"Load CSV manually"</strong> as a fallback.</p>`;
       }
@@ -1016,6 +1062,30 @@
     updateColBadge();
   }
 
+  // ===== EXPORT FUNCTIONS =====
+  function exportCSV(data, filename) {
+    if (!data || data.length === 0) { alert('No data to export.'); return; }
+    const visibleHeaders = getVisibleHeaders();
+    let csvContent = 'Status,Remark,' + visibleHeaders.join(',') + '\n';
+    data.forEach(row => {
+      const status = row._status || 'Pending';
+      const remark = (row._remark || '').replace(/,/g, ';');
+      const rowValues = visibleHeaders.map(h => {
+        let val = (row[h] || '').toString();
+        if (val.includes(',') || val.includes('"') || val.includes('\n')) val = '"' + val.replace(/"/g,'""') + '"';
+        return val;
+      });
+      csvContent += `${status},${remark},${rowValues.join(',')}\n`;
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `gasoline_export_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function loadCSV(csvText){
     const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
     if (lines.length < 2){ showError('The data source returned no rows.'); return; }
@@ -1056,7 +1126,7 @@
     currentData = newData;
     filteredData = [];
     rebuildFilterOptions();
-    if (searchTerm || vehicleFilter !== 'all' || monthFilter !== 'all') applyFilters();
+    if (searchTerm || vehicleFilter !== 'all' || monthFilter !== 'all' || statusFilter !== 'all') applyFilters();
     rebuildColumnCheckboxes();
     renderTable();
     updatePendingBanner();
@@ -1081,6 +1151,7 @@
     return result;
   }
 
+  // ===== EVENT LISTENERS =====
   fileInput.addEventListener('change', function(){
     const file = this.files[0];
     if (!file) return;
@@ -1091,10 +1162,13 @@
   });
 
   searchBox.addEventListener('input', function(){ searchTerm = this.value; applyFilters(); });
+  statusFilterSelect.addEventListener('change', function(){ statusFilter = this.value; applyFilters(); });
   vehicleFilterSelect.addEventListener('change', function(){ vehicleFilter = this.value; applyFilters(); });
   monthFilterSelect.addEventListener('change', function(){ monthFilter = this.value; applyFilters(); });
+
   clearFiltersBtn.addEventListener('click', function(){
     searchTerm = ''; searchBox.value = '';
+    statusFilter = 'all'; statusFilterSelect.value = 'all';
     vehicleFilter = 'all'; vehicleFilterSelect.value = 'all';
     monthFilter = 'all'; monthFilterSelect.value = 'all';
     applyFilters();
@@ -1121,28 +1195,15 @@
   });
 
   exportBtn.addEventListener('click', function(){
-    if (currentData.length === 0){ alert('No data to export.'); return; }
-    let csvContent = 'Status,Remark,' + headers.join(',') + '\n';
-    currentData.forEach(row => {
-      const status = row._status || 'Pending';
-      const remark = (row._remark || '').replace(/,/g, ';');
-      const rowValues = headers.map(h => {
-        let val = (row[h] || '').toString();
-        if (val.includes(',') || val.includes('"') || val.includes('\n')) val = '"' + val.replace(/"/g,'""') + '"';
-        return val;
-      });
-      csvContent += `${status},${remark},${rowValues.join(',')}\n`;
-    });
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `gasoline_liquidation_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportCSV(currentData, `gasoline_liquidation_full_${new Date().toISOString().slice(0,10)}.csv`);
   });
 
-  // init
+  tableExportBtn.addEventListener('click', function(){
+    const data = filteredData.length ? filteredData : currentData;
+    exportCSV(data, `gasoline_liquidation_filtered_${new Date().toISOString().slice(0,10)}.csv`);
+  });
+
+  // ===== INIT =====
   syncFromSheet();
   setInterval(syncFromSheet, AUTO_REFRESH_MS);
 })();
