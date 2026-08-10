@@ -626,9 +626,9 @@
       color: var(--incomplete);
     }
     .group-expand-btn {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
+      background: var(--brand-tint);
+      border: 1px solid var(--line);
+      font-size: .9rem;
       cursor: pointer;
       color: var(--brand);
       font-weight: 700;
@@ -639,10 +639,24 @@
       align-items: center;
       justify-content: center;
       transition: .15s;
-      background: var(--brand-tint);
+      padding: 0;
+      line-height: 1;
     }
     .group-expand-btn:hover {
       background: #cbdde0;
+    }
+    .group-expand-btn .badge-count {
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      font-size: .6rem;
+      min-width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      padding: 0 4px;
     }
     .group-row td {
       background: #f8fafc;
@@ -1366,7 +1380,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: Unsettled List (grouped by vehicle) -->
+      <!-- TAB 3: Unsettled List (grouped by vehicle, collapsed by default) -->
       <div class="tab-content" id="tab3">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
           <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--pending);">⚠️ Unsettled Receipts</h3>
@@ -1389,7 +1403,7 @@
 
         <div class="unsettled-table-wrap">
           <table>
-            <thead><tr><th style="width:40px;"></th><th>Vehicle Plate</th><th>Status</th><th>Quantity (Liters)</th><th>Amount</th><th>Site Name</th><th>Delivery Date</th><th>Time</th><th>Receipt Number</th></tr></thead>
+            <thead><tr><th style="width:50px;"></th><th>Vehicle Plate</th><th>Status</th><th>Quantity (Liters)</th><th>Amount</th><th>Site Name</th><th>Delivery Date</th><th>Time</th><th>Receipt Number</th></tr></thead>
             <tbody id="unsettledTableBody"><tr><td colspan="9" style="text-align:center;padding:40px;color:var(--ink-soft);"><div class="icon" style="font-size:2rem;">⛽</div><p>Loading unsettled receipts…</p></td></tr></tbody>
           </table>
         </div>
@@ -1691,7 +1705,6 @@
           h)) || null;
         timeCol = dataHeaders.find(h => /time/i.test(h)) || null;
         litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
-        // Site name: prefer "Site Name" (col G), fallback to "Site Code" (col F)
         siteCol = dataHeaders.find(h => /site\s*name/i.test(h)) || dataHeaders.find(h => /site\s*code/i.test(h)) || null;
         receiptCol = dataHeaders.find(h => /receipt.*number|receipt.*num/i.test(h)) || null;
 
@@ -1749,7 +1762,6 @@
           monthFilterSelect.value = sorted.includes(prev) ? prev : 'all';
           monthFilter = monthFilterSelect.value;
           monthFilterSelect.style.display = '';
-          // also update unsettled month filter
           const uPrev = unsettledMonthFilterEl.value;
           unsettledMonthFilterEl.innerHTML = '<option value="all">All months</option>' + sorted.map(k => {
             const [y, mo] = k.split('-');
@@ -1828,7 +1840,6 @@
           }]
         });
 
-        // group by month
         const monthGroups = {};
         data.forEach(row => {
           if (!dateCol) return;
@@ -2137,7 +2148,7 @@
           const rowId = 'group-' + rowCounter;
 
           html += `<tr class="group-row" data-group="${rowId}">
-            <td><button class="group-expand-btn" data-target="${rowId}" data-expanded="false">+</button></td>
+            <td><button class="group-expand-btn" data-target="${rowId}" data-expanded="false">+ <span class="badge-count">${count}</span></button></td>
             <td class="group-vehicle">${escapeHtml(vehicle)}</td>
             <td><span class="status-badge ${statuses.has('Pending')?'pending':'incomplete'}">${statusLabel}</span></td>
             <td>${formatNumber(litersSum)}</td>
@@ -2145,7 +2156,7 @@
             <td class="group-summary" colspan="4">${count} receipt${count>1?'s':''} · last ${rows.length>0?escapeHtml(rows[rows.length-1][dateCol]||'—'):'—'}</td>
           </tr>`;
 
-          // Detail rows (hidden initially)
+          // Detail rows - hidden by default (collapsed)
           rows.forEach((r, idx) => {
             const status = r._status || 'Pending';
             const statusClass = status.toLowerCase();
@@ -2157,8 +2168,8 @@
             const timeVal = timeCol ? (r[timeCol] || '—') : '—';
             const receiptVal = receiptCol ? (r[receiptCol] || '—') : '—';
 
-            const display = idx === 0 ? 'table-row' : 'none';
-            html += `<tr class="detail-row" data-group="${rowId}" style="display:${display};">
+            // All detail rows start hidden (display:none)
+            html += `<tr class="detail-row" data-group="${rowId}" style="display:none;">
               <td></td>
               <td style="padding-left:44px;">${escapeHtml(vehicleVal)}</td>
               <td><span class="status-badge ${statusClass}">${status === 'Pending' ? '⏳ Pending' : '⚠️ Incomplete'}</span></td>
@@ -2185,7 +2196,7 @@
               el.style.display = expanded ? 'none' : 'table-row';
             });
             this.dataset.expanded = expanded ? 'false' : 'true';
-            this.textContent = expanded ? '+' : '−';
+            this.innerHTML = expanded ? `+ <span class="badge-count">${details.length}</span>` : `− <span class="badge-count">${details.length}</span>`;
           });
         });
       }
