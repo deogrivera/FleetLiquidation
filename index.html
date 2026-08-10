@@ -161,7 +161,7 @@
   .charts-section {
     margin-top: 16px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
   }
   .chart-card {
@@ -190,19 +190,29 @@
     background: var(--brand-tint);
     color: var(--brand);
   }
-  .chart-card canvas { max-height: 200px; max-width: 100%; }
-  .chart-container { position: relative; height: 200px; }
+  .chart-card canvas { max-height: 180px; max-width: 100%; }
+  .chart-container { position: relative; height: 180px; }
 
-  /* Full-width chart */
-  .chart-card.full-width {
+  /* Full-width chart row */
+  .chart-row {
     grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
-  .chart-card.full-width canvas { max-height: 220px; }
-  .chart-card.full-width .chart-container { height: 220px; }
+  .chart-row .chart-card {
+    grid-column: auto;
+  }
+  .chart-row .chart-card canvas { max-height: 200px; }
+  .chart-row .chart-card .chart-container { height: 200px; }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1100px) {
+    .charts-section { grid-template-columns: 1fr 1fr; }
+    .chart-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
     .charts-section { grid-template-columns: 1fr; }
-    .chart-card.full-width { grid-column: 1; }
+    .chart-row { grid-template-columns: 1fr; }
   }
 
   /* Overview KPI Groups */
@@ -582,10 +592,25 @@
       <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
       <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
     </div>
-    <!-- Full-width Dual-Axis Line Chart: Monthly Trends -->
-    <div class="chart-card full-width">
-      <div class="chart-title">📈 Monthly Trends: Liters & Receipts <span class="badge-chart">Volume vs Count</span></div>
-      <div class="chart-container"><canvas id="trendChart"></canvas></div>
+    <!-- Empty placeholder or we can put a summary stat card here -->
+    <div class="chart-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--brand-tint);border-color:var(--brand);">
+      <div style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:4px;">📈</div>
+        <div style="font-size:.9rem;font-weight:600;color:var(--brand);">Monthly Trends</div>
+        <div style="font-size:.7rem;color:var(--ink-soft);">See below for detailed charts</div>
+      </div>
+    </div>
+
+    <!-- Full-width row: Two line charts side by side -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">⛽ Liters Trend <span class="badge-chart">Volume</span></div>
+        <div class="chart-container"><canvas id="litersTrendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🧾 Receipts Trend <span class="badge-chart">Count</span></div>
+        <div class="chart-container"><canvas id="receiptsTrendChart"></canvas></div>
+      </div>
     </div>
   </div>
 
@@ -745,7 +770,8 @@
   // Chart instances
   let donutChart = null;
   let gaugeChart = null;
-  let trendChart = null;
+  let litersTrendChart = null;
+  let receiptsTrendChart = null;
 
   // ========== DOM ==========
   const fileInput = document.getElementById('csvUpload');
@@ -797,7 +823,8 @@
   // Chart canvas elements
   const donutCanvas = document.getElementById('donutChart');
   const gaugeCanvas = document.getElementById('gaugeChart');
-  const trendCanvas = document.getElementById('trendChart');
+  const litersTrendCanvas = document.getElementById('litersTrendChart');
+  const receiptsTrendCanvas = document.getElementById('receiptsTrendChart');
 
   // Debug toggle
   let debugOpen = false;
@@ -1116,8 +1143,7 @@
       }]
     });
 
-    // 3. Dual-Axis Line Chart: Monthly Trends
-    // Group data by month
+    // Group data by month for trend charts
     const monthGroups = {};
     data.forEach(row => {
       if (!dateCol) return;
@@ -1142,7 +1168,6 @@
       }
     });
 
-    // Sort months chronologically
     const sortedMonths = Object.keys(monthGroups).sort();
     const monthLabels = sortedMonths.map(k => {
       const [y, mo] = k.split('-');
@@ -1154,8 +1179,9 @@
     const receiptsData = sortedMonths.map(k => monthGroups[k].receipts);
     const settledReceiptsData = sortedMonths.map(k => monthGroups[k].settledReceipts);
 
-    if (trendChart) trendChart.destroy();
-    trendChart = new Chart(trendCanvas, {
+    // 3. Liters Trend Chart
+    if (litersTrendChart) litersTrendChart.destroy();
+    litersTrendChart = new Chart(litersTrendCanvas, {
       type: 'line',
       data: {
         labels: monthLabels,
@@ -1169,7 +1195,6 @@
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#0f4c5c',
-            yAxisID: 'y',
           },
           {
             label: 'Settled Liters',
@@ -1181,47 +1206,19 @@
             pointRadius: 4,
             pointBackgroundColor: '#1f8a4c',
             borderDash: [5, 5],
-            yAxisID: 'y',
-          },
-          {
-            label: 'Total Receipts',
-            data: receiptsData,
-            borderColor: '#c23b3b',
-            backgroundColor: 'rgba(194, 59, 59, 0.1)',
-            fill: false,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#c23b3b',
-            yAxisID: 'y1',
-          },
-          {
-            label: 'Settled Receipts',
-            data: settledReceiptsData,
-            borderColor: '#a8710f',
-            backgroundColor: 'rgba(168, 113, 15, 0.1)',
-            fill: false,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#a8710f',
-            borderDash: [5, 5],
-            yAxisID: 'y1',
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
         plugins: {
           legend: { 
             position: 'bottom', 
             labels: { 
               boxWidth: 12, 
               padding: 8, 
-              font: { size: 9 },
+              font: { size: 10 },
               usePointStyle: true,
               pointStyle: 'circle'
             } 
@@ -1229,37 +1226,80 @@
           tooltip: {
             callbacks: {
               label: function(context) {
-                let label = context.dataset.label || '';
-                let value = context.parsed.y;
-                if (context.dataset.yAxisID === 'y') {
-                  return label + ': ' + formatNumber(value) + ' L';
-                } else {
-                  return label + ': ' + value;
-                }
+                return context.dataset.label + ': ' + formatNumber(context.parsed.y) + ' L';
               }
             }
           }
         },
         scales: {
-          x: {
-            grid: { display: false },
-            ticks: { font: { size: 9 } }
-          },
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            label: 'Liters',
+          x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+          y: { 
+            beginAtZero: true, 
             ticks: { font: { size: 9 }, callback: function(value) { return formatNumber(value); } },
             grid: { color: 'rgba(0,0,0,0.05)' }
+          }
+        }
+      }
+    });
+
+    // 4. Receipts Trend Chart
+    if (receiptsTrendChart) receiptsTrendChart.destroy();
+    receiptsTrendChart = new Chart(receiptsTrendCanvas, {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Total Receipts',
+            data: receiptsData,
+            borderColor: '#c23b3b',
+            backgroundColor: 'rgba(194, 59, 59, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#c23b3b',
           },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            label: 'Receipts',
+          {
+            label: 'Settled Receipts',
+            data: settledReceiptsData,
+            borderColor: '#a8710f',
+            backgroundColor: 'rgba(168, 113, 15, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#a8710f',
+            borderDash: [5, 5],
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              boxWidth: 12, 
+              padding: 8, 
+              font: { size: 10 },
+              usePointStyle: true,
+              pointStyle: 'circle'
+            } 
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+          y: { 
+            beginAtZero: true, 
             ticks: { font: { size: 9 }, stepSize: 1 },
-            grid: { drawOnChartArea: false }
+            grid: { color: 'rgba(0,0,0,0.05)' }
           }
         }
       }
