@@ -800,7 +800,14 @@
     vehicleCol = dataHeaders.find(h => /plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
-    amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
+    
+    // AMOUNT COLUMN: Specifically look for "Gross Purchase Price in transaction currency (incl VAT and after discount)"
+    // or variations like "Gross Purchase Price", "Gross Amount", "Purchase Price", etc.
+    amountCol = dataHeaders.find(h => /gross.*purchase.*price|gross.*amount|purchase.*price.*vat|transaction.*currency/i.test(h)) || null;
+    // Fallback to other common amount column names if the specific one isn't found
+    if (!amountCol) {
+      amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
+    }
   }
 
   function rebuildFilterOptions(){
