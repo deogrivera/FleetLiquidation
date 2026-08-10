@@ -157,65 +157,7 @@
   .debug-content-inner .found { color: var(--settled); }
   .debug-content-inner .not-found { color: var(--pending); }
 
-  /* Charts Section */
-  .charts-section {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 16px 18px 18px;
-    box-shadow: var(--shadow);
-  }
-  .chart-card .chart-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    font-size: .85rem;
-    color: var(--ink);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .chart-card .chart-title .badge-chart {
-    font-size: .6rem;
-    font-weight: 600;
-    padding: 0 8px;
-    border-radius: 10px;
-    line-height: 16px;
-    background: var(--brand-tint);
-    color: var(--brand);
-  }
-  .chart-card canvas { max-height: 180px; max-width: 100%; }
-  .chart-container { position: relative; height: 180px; }
-
-  /* Full-width chart row */
-  .chart-row {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .chart-row .chart-card {
-    grid-column: auto;
-  }
-  .chart-row .chart-card canvas { max-height: 200px; }
-  .chart-row .chart-card .chart-container { height: 200px; }
-
-  @media (max-width: 1100px) {
-    .charts-section { grid-template-columns: 1fr 1fr; }
-    .chart-row { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 700px) {
-    .charts-section { grid-template-columns: 1fr; }
-    .chart-row { grid-template-columns: 1fr; }
-  }
-
-  /* Overview KPI Groups */
+  /* KPI Overview - 3 columns */
   .kpi-overview {
     margin-top: 16px;
     background: var(--surface);
@@ -247,7 +189,7 @@
   }
   .kpi-overview .overview-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 14px;
   }
   .kpi-group {
@@ -274,11 +216,15 @@
     border-radius: 10px;
     line-height: 16px;
   }
+  .kpi-group .group-title .badge-sm.total-badge {
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
   .kpi-group .group-title .badge-sm.settled-badge {
     background: var(--settled-bg);
     color: var(--settled);
   }
-  .kpi-group .group-title .badge-sm.pending-badge {
+  .kpi-group .group-title .badge-sm.unsettled-badge {
     background: var(--pending-bg);
     color: var(--pending);
   }
@@ -310,9 +256,73 @@
   .kpi-item .value.rate-color { color: var(--brand); }
   .kpi-item .value.big { font-size: 1.2rem; }
 
-  @media (max-width: 800px) {
+  @media (max-width: 1000px) {
+    .kpi-overview .overview-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 700px) {
     .kpi-overview .overview-grid { grid-template-columns: 1fr; }
     .kpi-items { grid-template-columns: 1fr; }
+  }
+
+  /* Charts Section */
+  .charts-section {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px 18px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card .chart-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-card .chart-title .badge-chart {
+    font-size: .6rem;
+    font-weight: 600;
+    padding: 0 8px;
+    border-radius: 10px;
+    line-height: 16px;
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
+  .chart-card canvas { max-height: 180px; max-width: 100%; }
+  .chart-container { position: relative; height: 180px; }
+
+  /* Full-width trend charts */
+  .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .chart-card.full-width canvas { max-height: 200px; }
+  .chart-card.full-width .chart-container { height: 200px; }
+
+  /* Trend charts grid - stacked vertically */
+  .trend-charts {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .trend-charts .chart-card {
+    grid-column: auto;
+  }
+  .trend-charts .chart-card canvas { max-height: 200px; }
+  .trend-charts .chart-card .chart-container { height: 200px; }
+
+  @media (max-width: 800px) {
+    .charts-section { grid-template-columns: 1fr; }
+    .trend-charts { grid-column: 1; }
   }
 
   /* Filtered KPI section */
@@ -344,7 +354,7 @@
   }
   .filtered-kpi-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
   }
   .filtered-kpi-group {
@@ -550,31 +560,41 @@
     </div>
   </div>
 
-  <!-- OVERVIEW: Grouped Summary + Unsettled -->
+  <!-- OVERVIEW: TOTAL - SETTLED - UNSETTLED -->
   <div class="kpi-overview" id="kpiOverview">
     <div class="overview-title">
       📊 Overview
       <span class="badge">All data</span>
     </div>
     <div class="overview-grid">
-      <!-- Summary Group -->
+      <!-- TOTAL Group -->
       <div class="kpi-group">
-        <div class="group-title">📋 Summary <span class="badge-sm settled-badge">Settled</span></div>
-        <div class="kpi-items" id="summaryItems">
-          <div class="kpi-item"><span class="label">Total Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
-          <div class="kpi-item"><span class="label">Total Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Total Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
+        <div class="group-title">📋 TOTAL <span class="badge-sm total-badge">All Receipts</span></div>
+        <div class="kpi-items" id="totalItems">
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
           <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
         </div>
       </div>
-      <!-- Unsettled Group -->
+      <!-- SETTLED Group -->
       <div class="kpi-group">
-        <div class="group-title">⏳ Unsettled <span class="badge-sm pending-badge">Pending + Incomplete</span></div>
+        <div class="group-title">✅ SETTLED <span class="badge-sm settled-badge">Completed</span></div>
+        <div class="kpi-items" id="settledItems">
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color big" id="kpiSettledReceipts">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color big" id="kpiSettledLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color big" id="kpiSettledAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color big" id="kpiSettledPct">0%</span></div>
+        </div>
+      </div>
+      <!-- UNSETTLED Group -->
+      <div class="kpi-group">
+        <div class="group-title">⏳ UNSETTLED <span class="badge-sm unsettled-badge">Pending + Incomplete</span></div>
         <div class="kpi-items" id="unsettledItems">
-          <div class="kpi-item"><span class="label">Unsettled Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
-          <div class="kpi-item"><span class="label">Unsettled Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Unsettled Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color big" id="kpiUnsettledRate">0%</span></div>
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color big" id="kpiUnsettledPct">0%</span></div>
         </div>
       </div>
     </div>
@@ -592,24 +612,23 @@
       <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
       <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
     </div>
-    <!-- Empty placeholder or we can put a summary stat card here -->
-    <div class="chart-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--brand-tint);border-color:var(--brand);">
-      <div style="text-align:center;">
-        <div style="font-size:2rem;margin-bottom:4px;">📈</div>
-        <div style="font-size:.9rem;font-weight:600;color:var(--brand);">Monthly Trends</div>
-        <div style="font-size:.7rem;color:var(--ink-soft);">See below for detailed charts</div>
-      </div>
-    </div>
 
-    <!-- Full-width row: Two line charts side by side -->
-    <div class="chart-row">
+    <!-- Trend Charts - Stacked Vertically -->
+    <div class="trend-charts">
+      <!-- Liters Trend -->
       <div class="chart-card">
         <div class="chart-title">⛽ Liters Trend <span class="badge-chart">Volume</span></div>
         <div class="chart-container"><canvas id="litersTrendChart"></canvas></div>
       </div>
+      <!-- Receipts Trend -->
       <div class="chart-card">
         <div class="chart-title">🧾 Receipts Trend <span class="badge-chart">Count</span></div>
         <div class="chart-container"><canvas id="receiptsTrendChart"></canvas></div>
+      </div>
+      <!-- Amount Trend -->
+      <div class="chart-card">
+        <div class="chart-title">💰 Amount Trend <span class="badge-chart">Value</span></div>
+        <div class="chart-container"><canvas id="amountTrendChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -621,22 +640,34 @@
       <span class="badge-filter" id="filterBadge">0 rows</span>
     </div>
     <div class="filtered-kpi-grid" id="filteredKpiGrid">
+      <!-- Filtered TOTAL -->
       <div class="filtered-kpi-group">
-        <div class="group-title">📋 Summary</div>
-        <div class="kpi-items" id="filteredSummaryItems">
+        <div class="group-title">📋 TOTAL</div>
+        <div class="kpi-items" id="filtTotalItems">
           <div class="kpi-item"><span class="label">Receipts</span><span class="value" id="filtTotalReceipts">0</span></div>
           <div class="kpi-item"><span class="label">Liters</span><span class="value" id="filtTotalLiters">0</span></div>
           <div class="kpi-item"><span class="label">Amount</span><span class="value" id="filtTotalAmount">₱0</span></div>
           <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
         </div>
       </div>
+      <!-- Filtered SETTLED -->
       <div class="filtered-kpi-group">
-        <div class="group-title">⏳ Unsettled</div>
-        <div class="kpi-items" id="filteredUnsettledItems">
+        <div class="group-title">✅ SETTLED</div>
+        <div class="kpi-items" id="filtSettledItems">
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color" id="filtSettledReceipts">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color" id="filtSettledLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color" id="filtSettledAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color" id="filtSettledPct">0%</span></div>
+        </div>
+      </div>
+      <!-- Filtered UNSETTLED -->
+      <div class="filtered-kpi-group">
+        <div class="group-title">⏳ UNSETTLED</div>
+        <div class="kpi-items" id="filtUnsettledItems">
           <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color" id="filtUnsettledCount">0</span></div>
           <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color" id="filtUnsettledLiters">0</span></div>
           <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color" id="filtUnsettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color" id="filtUnsettledRate">0%</span></div>
+          <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color" id="filtUnsettledPct">0%</span></div>
         </div>
       </div>
     </div>
@@ -772,6 +803,7 @@
   let gaugeChart = null;
   let litersTrendChart = null;
   let receiptsTrendChart = null;
+  let amountTrendChart = null;
 
   // ========== DOM ==========
   const fileInput = document.getElementById('csvUpload');
@@ -825,6 +857,7 @@
   const gaugeCanvas = document.getElementById('gaugeChart');
   const litersTrendCanvas = document.getElementById('litersTrendChart');
   const receiptsTrendCanvas = document.getElementById('receiptsTrendChart');
+  const amountTrendCanvas = document.getElementById('amountTrendChart');
 
   // Debug toggle
   let debugOpen = false;
@@ -834,25 +867,41 @@
     debugArrow.classList.toggle('open', debugOpen);
   });
 
-  // KPI element references
+  // KPI element references - TOTAL
   const kpiTotalReceipts = document.getElementById('kpiTotalReceipts');
   const kpiTotalLiters = document.getElementById('kpiTotalLiters');
   const kpiTotalAmount = document.getElementById('kpiTotalAmount');
   const kpiSettledRate = document.getElementById('kpiSettledRate');
+
+  // KPI element references - SETTLED
+  const kpiSettledReceipts = document.getElementById('kpiSettledReceipts');
+  const kpiSettledLiters = document.getElementById('kpiSettledLiters');
+  const kpiSettledAmount = document.getElementById('kpiSettledAmount');
+  const kpiSettledPct = document.getElementById('kpiSettledPct');
+
+  // KPI element references - UNSETTLED
   const kpiUnsettledCount = document.getElementById('kpiUnsettledCount');
   const kpiUnsettledLiters = document.getElementById('kpiUnsettledLiters');
   const kpiUnsettledAmount = document.getElementById('kpiUnsettledAmount');
-  const kpiUnsettledRate = document.getElementById('kpiUnsettledRate');
+  const kpiUnsettledPct = document.getElementById('kpiUnsettledPct');
 
-  // Filtered KPI elements
+  // Filtered KPI elements - TOTAL
   const filtTotalReceipts = document.getElementById('filtTotalReceipts');
   const filtTotalLiters = document.getElementById('filtTotalLiters');
   const filtTotalAmount = document.getElementById('filtTotalAmount');
   const filtSettledRate = document.getElementById('filtSettledRate');
+
+  // Filtered KPI elements - SETTLED
+  const filtSettledReceipts = document.getElementById('filtSettledReceipts');
+  const filtSettledLiters = document.getElementById('filtSettledLiters');
+  const filtSettledAmount = document.getElementById('filtSettledAmount');
+  const filtSettledPct = document.getElementById('filtSettledPct');
+
+  // Filtered KPI elements - UNSETTLED
   const filtUnsettledCount = document.getElementById('filtUnsettledCount');
   const filtUnsettledLiters = document.getElementById('filtUnsettledLiters');
   const filtUnsettledAmount = document.getElementById('filtUnsettledAmount');
-  const filtUnsettledRate = document.getElementById('filtUnsettledRate');
+  const filtUnsettledPct = document.getElementById('filtUnsettledPct');
 
   sourceUrlLabel.textContent = SHEET_URL.length > 46 ? SHEET_URL.slice(0, 46) + '…' : SHEET_URL;
   sourceUrlLabel.title = SHEET_URL;
@@ -1062,16 +1111,29 @@
     const settledRate = total ? Math.round(settled/total*100) : 0;
 
     let totalLiters = 0;
-    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
     let settledLiters = 0;
-    if (litersCol) { settledLiters = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
-    let unsettledLiters = totalLiters - settledLiters;
+    let totalAmount = 0;
+    let settledAmount = 0;
+    
+    if (litersCol) { 
+      totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+      settledLiters = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+    }
+    if (amountCol) {
+      totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+      settledAmount = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+    }
+    
+    const unsettledLiters = totalLiters - settledLiters;
+    const unsettledAmount = totalAmount - settledAmount;
+    const unsettledCount = unsettled;
 
     const colors = {
       settled: '#1f8a4c',
       pending: '#c23b3b',
       incomplete: '#a8710f',
-      unsettled: '#c23b3b'
+      unsettled: '#c23b3b',
+      total: '#0f4c5c'
     };
 
     // 1. Donut Chart: Settlement Breakdown
@@ -1154,17 +1216,31 @@
         monthGroups[key] = { 
           liters: 0, 
           receipts: 0,
+          amount: 0,
           settledLiters: 0,
-          settledReceipts: 0
+          settledReceipts: 0,
+          settledAmount: 0,
+          unsettledLiters: 0,
+          unsettledReceipts: 0,
+          unsettledAmount: 0
         };
       }
       const liters = litersCol ? parseAmount(row[litersCol]) : 0;
+      const amount = amountCol ? parseAmount(row[amountCol]) : 0;
       const isSettled = row._status === 'Settled';
+      
       monthGroups[key].liters += liters;
+      monthGroups[key].amount += amount;
       monthGroups[key].receipts += 1;
+      
       if (isSettled) {
         monthGroups[key].settledLiters += liters;
+        monthGroups[key].settledAmount += amount;
         monthGroups[key].settledReceipts += 1;
+      } else {
+        monthGroups[key].unsettledLiters += liters;
+        monthGroups[key].unsettledAmount += amount;
+        monthGroups[key].unsettledReceipts += 1;
       }
     });
 
@@ -1173,11 +1249,6 @@
       const [y, mo] = k.split('-');
       return new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleString('en-US', {month:'short', year:'numeric'});
     });
-
-    const litersData = sortedMonths.map(k => monthGroups[k].liters);
-    const settledLitersData = sortedMonths.map(k => monthGroups[k].settledLiters);
-    const receiptsData = sortedMonths.map(k => monthGroups[k].receipts);
-    const settledReceiptsData = sortedMonths.map(k => monthGroups[k].settledReceipts);
 
     // 3. Liters Trend Chart
     if (litersTrendChart) litersTrendChart.destroy();
@@ -1188,7 +1259,7 @@
         datasets: [
           {
             label: 'Total Liters',
-            data: litersData,
+            data: sortedMonths.map(k => monthGroups[k].liters),
             borderColor: '#0f4c5c',
             backgroundColor: 'rgba(15, 76, 92, 0.1)',
             fill: true,
@@ -1198,7 +1269,7 @@
           },
           {
             label: 'Settled Liters',
-            data: settledLitersData,
+            data: sortedMonths.map(k => monthGroups[k].settledLiters),
             borderColor: '#1f8a4c',
             backgroundColor: 'rgba(31, 138, 76, 0.1)',
             fill: true,
@@ -1206,6 +1277,17 @@
             pointRadius: 4,
             pointBackgroundColor: '#1f8a4c',
             borderDash: [5, 5],
+          },
+          {
+            label: 'Unsettled Liters',
+            data: sortedMonths.map(k => monthGroups[k].unsettledLiters),
+            borderColor: '#c23b3b',
+            backgroundColor: 'rgba(194, 59, 59, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#c23b3b',
+            borderDash: [2, 4],
           }
         ]
       },
@@ -1251,24 +1333,35 @@
         datasets: [
           {
             label: 'Total Receipts',
-            data: receiptsData,
+            data: sortedMonths.map(k => monthGroups[k].receipts),
+            borderColor: '#0f4c5c',
+            backgroundColor: 'rgba(15, 76, 92, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0f4c5c',
+          },
+          {
+            label: 'Settled Receipts',
+            data: sortedMonths.map(k => monthGroups[k].settledReceipts),
+            borderColor: '#1f8a4c',
+            backgroundColor: 'rgba(31, 138, 76, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#1f8a4c',
+            borderDash: [5, 5],
+          },
+          {
+            label: 'Unsettled Receipts',
+            data: sortedMonths.map(k => monthGroups[k].unsettledReceipts),
             borderColor: '#c23b3b',
             backgroundColor: 'rgba(194, 59, 59, 0.1)',
             fill: true,
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#c23b3b',
-          },
-          {
-            label: 'Settled Receipts',
-            data: settledReceiptsData,
-            borderColor: '#a8710f',
-            backgroundColor: 'rgba(168, 113, 15, 0.1)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#a8710f',
-            borderDash: [5, 5],
+            borderDash: [2, 4],
           }
         ]
       },
@@ -1304,6 +1397,80 @@
         }
       }
     });
+
+    // 5. Amount Trend Chart
+    if (amountTrendChart) amountTrendChart.destroy();
+    amountTrendChart = new Chart(amountTrendCanvas, {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Total Amount',
+            data: sortedMonths.map(k => monthGroups[k].amount),
+            borderColor: '#0f4c5c',
+            backgroundColor: 'rgba(15, 76, 92, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0f4c5c',
+          },
+          {
+            label: 'Settled Amount',
+            data: sortedMonths.map(k => monthGroups[k].settledAmount),
+            borderColor: '#1f8a4c',
+            backgroundColor: 'rgba(31, 138, 76, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#1f8a4c',
+            borderDash: [5, 5],
+          },
+          {
+            label: 'Unsettled Amount',
+            data: sortedMonths.map(k => monthGroups[k].unsettledAmount),
+            borderColor: '#c23b3b',
+            backgroundColor: 'rgba(194, 59, 59, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#c23b3b',
+            borderDash: [2, 4],
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              boxWidth: 12, 
+              padding: 8, 
+              font: { size: 10 },
+              usePointStyle: true,
+              pointStyle: 'circle'
+            } 
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+          y: { 
+            beginAtZero: true, 
+            ticks: { font: { size: 9 }, callback: function(value) { return formatCurrency(value); } },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          }
+        }
+      }
+    });
   }
 
   // ===== KPI UPDATE FUNCTION =====
@@ -1315,36 +1482,62 @@
     const unsettled = pending + incomplete;
 
     let totalLiters = 0;
-    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    let settledLiters = 0;
     let totalAmount = 0;
-    if (amountCol) { totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
-
-    let unsettledLiters = 0;
-    let unsettledAmount = 0;
-    if (litersCol) { unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
-    if (amountCol) { unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
-
+    let settledAmount = 0;
+    
+    if (litersCol) { 
+      totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+      settledLiters = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+    }
+    if (amountCol) {
+      totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+      settledAmount = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+    }
+    
+    const unsettledLiters = totalLiters - settledLiters;
+    const unsettledAmount = totalAmount - settledAmount;
     const settledRate = total ? Math.round(settled/total*100) : 0;
-    const unsettledRate = total ? Math.round(unsettled/total*100) : 0;
+    const settledPct = total ? Math.round(settled/total*100) : 0;
+    const unsettledPct = total ? Math.round(unsettled/total*100) : 0;
 
     if (!isFiltered) {
+      // TOTAL
       kpiTotalReceipts.textContent = total;
       kpiTotalLiters.textContent = formatNumber(totalLiters);
       kpiTotalAmount.textContent = formatCurrency(totalAmount);
       kpiSettledRate.textContent = settledRate + '%';
+      
+      // SETTLED
+      kpiSettledReceipts.textContent = settled;
+      kpiSettledLiters.textContent = formatNumber(settledLiters);
+      kpiSettledAmount.textContent = formatCurrency(settledAmount);
+      kpiSettledPct.textContent = settledPct + '%';
+      
+      // UNSETTLED
       kpiUnsettledCount.textContent = unsettled;
       kpiUnsettledLiters.textContent = formatNumber(unsettledLiters);
       kpiUnsettledAmount.textContent = formatCurrency(unsettledAmount);
-      kpiUnsettledRate.textContent = unsettledRate + '%';
+      kpiUnsettledPct.textContent = unsettledPct + '%';
     } else {
+      // Filtered TOTAL
       filtTotalReceipts.textContent = total;
       filtTotalLiters.textContent = formatNumber(totalLiters);
       filtTotalAmount.textContent = formatCurrency(totalAmount);
       filtSettledRate.textContent = settledRate + '%';
+      
+      // Filtered SETTLED
+      filtSettledReceipts.textContent = settled;
+      filtSettledLiters.textContent = formatNumber(settledLiters);
+      filtSettledAmount.textContent = formatCurrency(settledAmount);
+      filtSettledPct.textContent = settledPct + '%';
+      
+      // Filtered UNSETTLED
       filtUnsettledCount.textContent = unsettled;
       filtUnsettledLiters.textContent = formatNumber(unsettledLiters);
       filtUnsettledAmount.textContent = formatCurrency(unsettledAmount);
-      filtUnsettledRate.textContent = unsettledRate + '%';
+      filtUnsettledPct.textContent = unsettledPct + '%';
+      
       filterBadge.textContent = total + ' row' + (total !== 1 ? 's' : '');
     }
 
