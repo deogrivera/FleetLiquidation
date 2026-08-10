@@ -113,7 +113,7 @@
 
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 14px;
     margin-top: 16px;
   }
@@ -165,7 +165,7 @@
   }
   .filtered-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
   }
   .filtered-kpi-card {
@@ -187,7 +187,10 @@
     font-size: 1.2rem;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1100px) {
+    .kpi-grid, .filtered-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
     .kpi-grid, .filtered-kpi-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 480px) {
@@ -343,10 +346,10 @@
     </div>
   </div>
 
-  <!-- KPI GENERAL -->
+  <!-- KPI GENERAL - 5 columns -->
   <div class="kpi-grid" id="kpiGrid"></div>
 
-  <!-- KPI FILTERED -->
+  <!-- KPI FILTERED - 5 columns -->
   <div class="filtered-kpi-section" id="filteredKpiSection">
     <div class="section-label">
       <span>🔎 Filtered view</span>
@@ -464,7 +467,8 @@
   let sortDir = 1;
   let vehicleCol = null;
   let dateCol = null;
-  let amountCol = null;
+  let litersCol = null;      // Column W
+  let amountCol = null;      // Column AA
   let vehicleFilter = 'all';
   let monthFilter = 'all';
   let searchTerm = '';
@@ -603,52 +607,35 @@
     renderTable();
   }
 
-  // ========== FIXED DATE PARSER: MM/DD/YYYY first ==========
+  // ========== DATE PARSER: MM/DD/YYYY first ==========
   function parseFlexibleDate(str){
     if (!str) return null;
     str = String(str).trim();
     if (!str) return null;
 
-    // Try ISO format: YYYY-MM-DD
     let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
     if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
 
-    // Try YYYY-Mon-DD
     m = str.match(/^(\d{4})[-\/]([A-Za-z]{3,})[-\/](\d{1,2})$/);
     if (m){ const d = new Date(m[1]+' '+m[2]+' '+m[3]); if (!isNaN(d.getTime())) return d; }
 
-    // Try MM/DD/YYYY or MM/DD/YY (US format) - this is now the primary for 2-digit years
     m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     if (m){
       let a = parseInt(m[1],10), b = parseInt(m[2],10), y = parseInt(m[3],10);
       if (y < 100) y += 2000;
-      // MM/DD/YYYY: first number is month, second is day
-      // But we need to be careful: if first number > 12, it's likely DD/MM/YYYY
       let month, day;
-      if (a > 12) {
-        // First number > 12 → treat as DD/MM/YYYY
-        day = a;
-        month = b;
-      } else if (b > 12) {
-        // Second number > 12 → treat as MM/DD/YYYY (first is month, second is day)
-        month = a;
-        day = b;
-      } else {
-        // Both <= 12 → treat as MM/DD/YYYY (US default)
-        month = a;
-        day = b;
-      }
+      if (a > 12) { day = a; month = b; }
+      else if (b > 12) { month = a; day = b; }
+      else { month = a; day = b; }
       const d = new Date(y, month-1, day);
       return isNaN(d.getTime()) ? null : d;
     }
 
-    // Try natural language
     if (/[A-Za-z]/.test(str)){
       const d = new Date(str);
       if (!isNaN(d.getTime())) return d;
     }
 
-    // Last resort
     const d2 = new Date(str);
     return isNaN(d2.getTime()) ? null : d2;
   }
@@ -656,11 +643,15 @@
   function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
   function parseAmount(str){ const n = parseFloat(String(str||'').replace(/[^0-9.\-]/g,'')); return isNaN(n) ? 0 : n; }
   function formatCurrency(n){ return '₱' + n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
+  function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:0}); }
 
   function detectSpecialColumns(dataHeaders){
     vehicleCol = dataHeaders.find(h => /plate|vehicle|license/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
-    amountCol = dataHeaders.find(h => /amount|cost|value|price/i.test(h)) || null;
+    // Look for liters column (Column W) - common names: LITERS, LITRE, VOLUME, QTY, QUANTITY
+    litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
+    // Look for amount column (Column AA) - common names: AMOUNT, COST, VALUE, PRICE, TOTAL
+    amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
   }
 
   function rebuildFilterOptions(){
@@ -688,63 +679,58 @@
     } else { monthFilterSelect.style.display = 'none'; monthFilter = 'all'; }
   }
 
-  // ===== KPI UPDATES =====
+  // ===== KPI UPDATES - 5 KPIs =====
   function updateKPIs(){
+    // --- General KPIs (all data) ---
     const total = currentData.length;
     const settled = currentData.filter(r => r._status === 'Settled').length;
-    const incomplete = currentData.filter(r => r._status === 'Incomplete').length;
-    const pending = currentData.filter(r => r._status === 'Pending').length;
+    const pending = currentData.filter(r => r._status === 'Pending' || r._status === 'Incomplete').length;
     const rate = total ? Math.round(settled/total*100) : 0;
-    let card3Icon = '🚛', card3Label = 'Incomplete', card3Value = incomplete;
-    if (amountCol){
-      const sumPending = currentData.filter(r => r._status === 'Pending').reduce((s,r) => s + parseAmount(r[amountCol]), 0);
-      card3Icon = '₱'; card3Label = 'Pending amount'; card3Value = formatCurrency(sumPending);
-    } else if (vehicleCol){
-      const uniqueVehicles = new Set(currentData.map(r => (r[vehicleCol]||'').trim()).filter(Boolean)).size;
-      card3Icon = '🚛'; card3Label = 'Vehicles covered'; card3Value = uniqueVehicles;
+
+    // Sum liters (Column W)
+    let totalLiters = 0;
+    if (litersCol) {
+      totalLiters = currentData.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
     }
-    let card4Icon = '✅', card4Label = 'Settled', card4Value = settled;
-    if (dateCol){
-      const now = new Date();
-      const curKey = monthKey(now);
-      const thisMonthCount = currentData.filter(r => { const d = parseFlexibleDate(r[dateCol]); return d && monthKey(d) === curKey; }).length;
-      card4Icon = '📅'; card4Label = 'Deliveries this month'; card4Value = thisMonthCount;
+
+    // Sum amount (Column AA)
+    let totalAmount = 0;
+    if (amountCol) {
+      totalAmount = currentData.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
     }
+
     kpiGrid.innerHTML = `
-      <div class="kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${total}</div><div class="kpi-label">Total receipts</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${rate}%</div><div class="kpi-label">Settled rate</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">${card3Icon}</div><div><div class="kpi-value">${card3Value}</div><div class="kpi-label">${card3Label}</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">${card4Icon}</div><div><div class="kpi-value">${card4Value}</div><div class="kpi-label">${card4Label}</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${total}</div><div class="kpi-label">Total Receipts</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${rate}%</div><div class="kpi-label">Settled Rate</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">⏳</div><div><div class="kpi-value">${pending}</div><div class="kpi-label">Pending (Unsettled) Receipts</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">⛽</div><div><div class="kpi-value">${formatNumber(totalLiters)}</div><div class="kpi-label">Total Liters</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon">💰</div><div><div class="kpi-value">${formatCurrency(totalAmount)}</div><div class="kpi-label">Total Amount</div></div></div>
     `;
 
-    // filtered KPIs
+    // --- Filtered KPIs ---
     const data = filteredData.length ? filteredData : currentData;
     const fTotal = data.length;
     const fSettled = data.filter(r => r._status === 'Settled').length;
-    const fIncomplete = data.filter(r => r._status === 'Incomplete').length;
-    const fPending = data.filter(r => r._status === 'Pending').length;
+    const fPending = data.filter(r => r._status === 'Pending' || r._status === 'Incomplete').length;
     const fRate = fTotal ? Math.round(fSettled/fTotal*100) : 0;
+
+    let fLiters = 0;
+    if (litersCol) {
+      fLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
+    }
+    let fAmount = 0;
+    if (amountCol) {
+      fAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+    }
+
     filterBadge.textContent = fTotal + ' row' + (fTotal !== 1 ? 's' : '');
-    let fCard3Icon = '🚛', fCard3Label = 'Incomplete', fCard3Value = fIncomplete;
-    if (amountCol){
-      const sumPending = data.filter(r => r._status === 'Pending').reduce((s,r) => s + parseAmount(r[amountCol]), 0);
-      fCard3Icon = '₱'; fCard3Label = 'Pending amount'; fCard3Value = formatCurrency(sumPending);
-    } else if (vehicleCol){
-      const uniqueVehicles = new Set(data.map(r => (r[vehicleCol]||'').trim()).filter(Boolean)).size;
-      fCard3Icon = '🚛'; fCard3Label = 'Vehicles'; fCard3Value = uniqueVehicles;
-    }
-    let fCard4Icon = '✅', fCard4Label = 'Settled', fCard4Value = fSettled;
-    if (dateCol && fTotal > 0){
-      const now = new Date();
-      const curKey = monthKey(now);
-      const thisMonthCount = data.filter(r => { const d = parseFlexibleDate(r[dateCol]); return d && monthKey(d) === curKey; }).length;
-      fCard4Icon = '📅'; fCard4Label = 'This month'; fCard4Value = thisMonthCount;
-    }
+
     filteredKpiGrid.innerHTML = `
-      <div class="filtered-kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${fTotal}</div><div class="kpi-label">Filtered rows</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${fRate}%</div><div class="kpi-label">Settled rate</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">${fCard3Icon}</div><div><div class="kpi-value">${fCard3Value}</div><div class="kpi-label">${fCard3Label}</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">${fCard4Icon}</div><div><div class="kpi-value">${fCard4Value}</div><div class="kpi-label">${fCard4Label}</div></div></div>
+      <div class="filtered-kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${fTotal}</div><div class="kpi-label">Filtered Receipts</div></div></div>
+      <div class="filtered-kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${fRate}%</div><div class="kpi-label">Settled Rate</div></div></div>
+      <div class="filtered-kpi-card"><div class="kpi-icon">⏳</div><div><div class="kpi-value">${fPending}</div><div class="kpi-label">Pending (Unsettled)</div></div></div>
+      <div class="filtered-kpi-card"><div class="kpi-icon">⛽</div><div><div class="kpi-value">${formatNumber(fLiters)}</div><div class="kpi-label">Liters</div></div></div>
+      <div class="filtered-kpi-card"><div class="kpi-icon">💰</div><div><div class="kpi-value">${formatCurrency(fAmount)}</div><div class="kpi-label">Amount</div></div></div>
     `;
   }
 
