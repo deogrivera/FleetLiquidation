@@ -1032,8 +1032,8 @@
   const unsettledExportBtn = document.getElementById('unsettledExportBtn');
   const searchBox = document.getElementById('searchBox');
   const unsettledSearchBox = document.getElementById('unsettledSearchBox');
-  const unsettledStatusFilter = document.getElementById('unsettledStatusFilter');
-  const unsettledMonthFilter = document.getElementById('unsettledMonthFilter');
+  const unsettledStatusFilterEl = document.getElementById('unsettledStatusFilter');
+  const unsettledMonthFilterEl = document.getElementById('unsettledMonthFilter');
   const unsettledClearFilters = document.getElementById('unsettledClearFilters');
   const unsettledTableBody = document.getElementById('unsettledTableBody');
   const tableHead = document.getElementById('tableHead');
@@ -1359,35 +1359,25 @@
       monthFilterSelect.style.display = '';
       
       // Also update unsettled month filter
-      const uPrev = unsettledMonthFilter.value;
-      unsettledMonthFilter.innerHTML = '<option value="all">All months</option>' + sorted.map(k => {
+      const uPrev = unsettledMonthFilterEl.value;
+      unsettledMonthFilterEl.innerHTML = '<option value="all">All months</option>' + sorted.map(k => {
         const [y, mo] = k.split('-');
         const label = new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleString('en-US', {month:'long', year:'numeric'});
         return `<option value="${k}">${label}</option>`;
       }).join('');
-      unsettledMonthFilter.value = sorted.includes(uPrev) ? uPrev : 'all';
-      unsettledMonthFilter = unsettledMonthFilter.value;
-      unsettledMonthFilter.style.display = '';
+      unsettledMonthFilterEl.value = sorted.includes(uPrev) ? uPrev : 'all';
+      unsettledMonthFilter = unsettledMonthFilterEl.value;
+      unsettledMonthFilterEl.style.display = '';
     } else { 
       monthFilterSelect.style.display = 'none'; 
       monthFilter = 'all';
-      unsettledMonthFilter.style.display = 'none';
+      unsettledMonthFilterEl.style.display = 'none';
       unsettledMonthFilter = 'all';
     }
   }
 
   // ===== CHART FUNCTIONS =====
   function updateCharts(data) {
-    // If no data or empty, destroy existing charts
-    if (!data || data.length === 0) {
-      if (donutChart) { donutChart.destroy(); donutChart = null; }
-      if (gaugeChart) { gaugeChart.destroy(); gaugeChart = null; }
-      if (litersTrendChart) { litersTrendChart.destroy(); litersTrendChart = null; }
-      if (receiptsTrendChart) { receiptsTrendChart.destroy(); receiptsTrendChart = null; }
-      if (amountTrendChart) { amountTrendChart.destroy(); amountTrendChart = null; }
-      return;
-    }
-
     const total = data.length;
     const settled = data.filter(r => r._status === 'Settled').length;
     const pending = data.filter(r => r._status === 'Pending').length;
@@ -1760,41 +1750,6 @@
 
   // ===== KPI UPDATE FUNCTION =====
   function updateKPIs(data, isFiltered){
-    // If no data, show zeros
-    if (!data || data.length === 0) {
-      if (!isFiltered) {
-        kpiTotalReceipts.textContent = '0';
-        kpiTotalLiters.textContent = '0';
-        kpiTotalAmount.textContent = '₱0';
-        kpiSettledRate.textContent = '0%';
-        kpiSettledReceipts.textContent = '0';
-        kpiSettledLiters.textContent = '0';
-        kpiSettledAmount.textContent = '₱0';
-        kpiSettledPct.textContent = '0%';
-        kpiUnsettledCount.textContent = '0';
-        kpiUnsettledLiters.textContent = '0';
-        kpiUnsettledAmount.textContent = '₱0';
-        kpiUnsettledPct.textContent = '0%';
-        unsettledTabBadge.textContent = '0';
-      } else {
-        filtTotalReceipts.textContent = '0';
-        filtTotalLiters.textContent = '0';
-        filtTotalAmount.textContent = '₱0';
-        filtSettledRate.textContent = '0%';
-        filtSettledReceipts.textContent = '0';
-        filtSettledLiters.textContent = '0';
-        filtSettledAmount.textContent = '₱0';
-        filtSettledPct.textContent = '0%';
-        filtUnsettledCount.textContent = '0';
-        filtUnsettledLiters.textContent = '0';
-        filtUnsettledAmount.textContent = '₱0';
-        filtUnsettledPct.textContent = '0%';
-        filterBadge.textContent = '0 rows';
-        filterTabBadge.textContent = '0 rows';
-      }
-      return;
-    }
-
     const total = data.length;
     const settled = data.filter(r => r._status === 'Settled').length;
     const pending = data.filter(r => r._status === 'Pending').length;
@@ -1835,6 +1790,7 @@
       kpiUnsettledAmount.textContent = formatCurrency(unsettledAmount);
       kpiUnsettledPct.textContent = unsettledPct + '%';
       
+      // Update unsettled tab badge
       unsettledTabBadge.textContent = unsettled;
     } else {
       filtTotalReceipts.textContent = total;
@@ -1863,14 +1819,6 @@
   }
 
   function updateUnsettledData() {
-    // Make sure we have data before trying to filter
-    if (!currentData || currentData.length === 0) {
-      unsettledData = [];
-      unsettledFilteredData = [];
-      renderUnsettledTable();
-      return;
-    }
-    
     // Get all unsettled receipts (Pending + Incomplete)
     unsettledData = currentData.filter(r => r._status === 'Pending' || r._status === 'Incomplete');
     applyUnsettledFilters();
@@ -1966,26 +1914,6 @@
   }
 
   function updateStats(){
-    // If no data, show zeros and return
-    if (!currentData || currentData.length === 0) {
-      countSettled.textContent = '0';
-      countPending.textContent = '0';
-      countIncomplete.textContent = '0';
-      countTotal.textContent = '0';
-      document.getElementById('legSettled').textContent = '0';
-      document.getElementById('legIncomplete').textContent = '0';
-      document.getElementById('legPending').textContent = '0';
-      document.getElementById('legTotal').textContent = '0';
-      document.getElementById('gaugePct').textContent = '0% settled';
-      document.getElementById('segSettled').style.width = '0%';
-      document.getElementById('segIncomplete').style.width = '0%';
-      document.getElementById('segPending').style.width = '0%';
-      
-      updateKPIs([], false);
-      updateKPIs([], true);
-      return;
-    }
-
     const data = filteredData.length ? filteredData : currentData;
     const settled = data.filter(r => r._status === 'Settled').length;
     const pending = data.filter(r => r._status === 'Pending').length;
@@ -2270,7 +2198,7 @@
     renderTable();
     updatePendingBanner();
     
-    // Update unsettled data AFTER currentData is set
+    // Update unsettled data
     updateUnsettledData();
   }
 
@@ -2321,11 +2249,11 @@
     unsettledSearchTerm = this.value;
     applyUnsettledFilters();
   });
-  unsettledStatusFilter.addEventListener('change', function() {
+  unsettledStatusFilterEl.addEventListener('change', function() {
     unsettledStatusFilter = this.value;
     applyUnsettledFilters();
   });
-  unsettledMonthFilter.addEventListener('change', function() {
+  unsettledMonthFilterEl.addEventListener('change', function() {
     unsettledMonthFilter = this.value;
     applyUnsettledFilters();
   });
@@ -2333,9 +2261,9 @@
     unsettledSearchTerm = '';
     unsettledSearchBox.value = '';
     unsettledStatusFilter = 'all';
-    unsettledStatusFilter.value = 'all';
+    unsettledStatusFilterEl.value = 'all';
     unsettledMonthFilter = 'all';
-    unsettledMonthFilter.value = 'all';
+    unsettledMonthFilterEl.value = 'all';
     applyUnsettledFilters();
   });
   unsettledExportBtn.addEventListener('click', exportUnsettledCSV);
