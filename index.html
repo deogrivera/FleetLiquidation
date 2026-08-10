@@ -1220,13 +1220,15 @@
       .unsettled-table-wrap {
         max-height: none;
         overflow: visible;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
       }
       .unsettled-table-wrap table {
         font-size: 9pt;
         width: 100%;
         border-collapse: collapse;
+        border: 1px solid #ddd;
       }
       .unsettled-table-wrap th {
         background: #f0f0f0 !important;
@@ -1234,14 +1236,18 @@
         print-color-adjust: exact;
         padding: 6px 8px;
         font-size: .7rem;
+        border: 1px solid #ddd;
+        text-transform: uppercase;
       }
       .unsettled-table-wrap td {
         padding: 5px 8px;
         font-size: 8.5pt;
+        border: 1px solid #ddd;
       }
       .unsettled-table-wrap .status-badge {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        font-weight: 600;
       }
       .group-expand-btn {
         display: none !important;
@@ -1261,31 +1267,65 @@
         font-size: .9rem;
       }
       .group-row .group-summary {
-        font-size: .8rem;
-        color: #4a5a70;
+        display: none !important;
       }
-      .unsettled-summary-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 16px;
+      /* Hide extra columns in PDF - only show Vehicle, Status, Liters, Amount, and No. of Unsettled Receipts */
+      .unsettled-table-wrap th:nth-child(1),
+      .unsettled-table-wrap td:nth-child(1) {
+        display: none !important;
       }
-      .unsettled-stat-card {
+      .unsettled-table-wrap th:nth-child(6),
+      .unsettled-table-wrap td:nth-child(6) {
+        display: none !important;
+      }
+      .unsettled-table-wrap th:nth-child(7),
+      .unsettled-table-wrap td:nth-child(7) {
+        display: none !important;
+      }
+      .unsettled-table-wrap th:nth-child(8),
+      .unsettled-table-wrap td:nth-child(8) {
+        display: none !important;
+      }
+      .unsettled-table-wrap th:nth-child(9),
+      .unsettled-table-wrap td:nth-child(9) {
+        display: none !important;
+      }
+      /* Reorder: Vehicle (col2), Status (col3), Liters (col4), Amount (col5), No. of Unsettled Receipts (col6) */
+      /* But we want No. of Unsettled Receipts to appear in the Site Name column position */
+      /* We'll use a different approach: rebuild the table in JS for PDF */
+      .unsettled-table-wrap {
+        display: none !important;
+      }
+      .pdf-table-wrapper {
+        display: block !important;
+        margin-top: 10px;
+      }
+      .pdf-table-wrapper table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
         border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px;
-        text-align: center;
-        background: #fafafa;
+      }
+      .pdf-table-wrapper th {
+        background: #f0f0f0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
-      }
-      .unsettled-stat-card .stat-number {
-        font-size: 1.4rem;
-        color: #c23b3b;
-      }
-      .unsettled-stat-card .stat-label {
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+        font-weight: 600;
         font-size: .7rem;
-        color: #4a5a70;
+        text-transform: uppercase;
+      }
+      .pdf-table-wrapper td {
+        padding: 5px 8px;
+        border: 1px solid #ddd;
+        font-size: 8.5pt;
+      }
+      .pdf-table-wrapper .status-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: 600;
       }
       .pdf-header {
         display: block !important;
@@ -1313,19 +1353,41 @@
         border-top: 1px solid #ddd;
         padding-top: 10px;
       }
-      /* Hide the "Site Name" column header in PDF, show "No. of Unsettled Receipts" */
-      .unsettled-table-wrap th:nth-child(6) {
-        content: "No. of Unsettled Receipts";
+      .pdf-summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
       }
-      .unsettled-table-wrap td:nth-child(6) {
-        font-weight: 600;
-        color: var(--brand);
+      .pdf-summary-card {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        text-align: center;
+        background: #fafafa;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .pdf-summary-card .num {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #c23b3b;
+      }
+      .pdf-summary-card .label {
+        font-size: .7rem;
+        color: #4a5a70;
       }
     }
     .pdf-header {
       display: none;
     }
     .pdf-footer {
+      display: none;
+    }
+    .pdf-table-wrapper {
+      display: none;
+    }
+    .pdf-summary-grid {
       display: none;
     }
   </style>
@@ -2348,7 +2410,7 @@
         });
       }
 
-      // ===== PDF Export - Undrilled (grouped) view =====
+      // ===== PDF Export - Undrilled (grouped) view with only 5 columns =====
       function exportUnsettledPDF() {
         const data = unsettledFilteredData;
         if (!data || data.length === 0) {
@@ -2372,21 +2434,8 @@
 
         const now = new Date().toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' });
 
-        // Build HTML for PDF - undrilled (grouped only)
-        let tableHtml = `
-          <table style="width:100%;border-collapse:collapse;font-size:9pt;font-family:Inter, sans-serif;">
-            <thead>
-              <tr style="background:#f0f0f0;border-bottom:2px solid #0f4c5c;">
-                <th style="padding:6px 8px;text-align:left;border:1px solid #ddd;">Vehicle Plate</th>
-                <th style="padding:6px 8px;text-align:left;border:1px solid #ddd;">Status</th>
-                <th style="padding:6px 8px;text-align:right;border:1px solid #ddd;">Total Liters</th>
-                <th style="padding:6px 8px;text-align:right;border:1px solid #ddd;">Total Amount</th>
-                <th style="padding:6px 8px;text-align:center;border:1px solid #ddd;">No. of Unsettled Receipts</th>
-                <th style="padding:6px 8px;text-align:left;border:1px solid #ddd;">Last Delivery</th>
-              </tr>
-            </thead>
-            <tbody>`;
-
+        // Build table rows
+        let tableRows = '';
         sortedKeys.forEach(vehicle => {
           const rows = groups[vehicle];
           const count = rows.length;
@@ -2395,46 +2444,52 @@
           const statuses = new Set(rows.map(r => r._status));
           const statusLabel = statuses.size === 1 ? (statuses.has('Pending') ? '⏳ Pending' : '⚠️ Incomplete') :
             'Mixed';
-          const lastDate = rows.length > 0 ? (rows[rows.length - 1][dateCol] || '—') : '—';
 
-          tableHtml += `
+          tableRows += `
             <tr style="border-bottom:1px solid #ddd;">
               <td style="padding:5px 8px;border:1px solid #ddd;font-weight:600;color:#0f4c5c;">${escapeHtml(vehicle)}</td>
               <td style="padding:5px 8px;border:1px solid #ddd;">${statusLabel}</td>
               <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">${formatNumber(litersSum)}</td>
               <td style="padding:5px 8px;border:1px solid #ddd;text-align:right;">${formatCurrency(amountSum)}</td>
               <td style="padding:5px 8px;border:1px solid #ddd;text-align:center;font-weight:600;color:#0f4c5c;">${count}</td>
-              <td style="padding:5px 8px;border:1px solid #ddd;">${escapeHtml(lastDate)}</td>
             </tr>`;
         });
-
-        tableHtml += `</tbody></table>`;
-
-        // Summary cards
-        const summaryHtml = `
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
-            <div style="border:1px solid #ddd;border-radius:6px;padding:10px;text-align:center;background:#fafafa;">
-              <div style="font-size:1.4rem;font-weight:700;color:#c23b3b;">${data.length}</div>
-              <div style="font-size:.7rem;color:#4a5a70;">Total Unsettled Receipts</div>
-            </div>
-            <div style="border:1px solid #ddd;border-radius:6px;padding:10px;text-align:center;background:#fafafa;">
-              <div style="font-size:1.4rem;font-weight:700;color:#c23b3b;">${formatNumber(totalLiters)}</div>
-              <div style="font-size:.7rem;color:#4a5a70;">Total Unsettled Liters</div>
-            </div>
-            <div style="border:1px solid #ddd;border-radius:6px;padding:10px;text-align:center;background:#fafafa;">
-              <div style="font-size:1.4rem;font-weight:700;color:#c23b3b;">${formatCurrency(totalAmount)}</div>
-              <div style="font-size:.7rem;color:#4a5a70;">Total Unsettled Amount</div>
-            </div>
-          </div>
-        `;
 
         const printContent = `
           <div class="pdf-header">
             <h2>DA-RFO I · Unsettled Receipts Report</h2>
             <p>Generated: ${now}</p>
           </div>
-          ${summaryHtml}
-          ${tableHtml}
+          <div class="pdf-summary-grid">
+            <div class="pdf-summary-card">
+              <div class="num">${data.length}</div>
+              <div class="label">Total Unsettled Receipts</div>
+            </div>
+            <div class="pdf-summary-card">
+              <div class="num">${formatNumber(totalLiters)}</div>
+              <div class="label">Total Unsettled Liters</div>
+            </div>
+            <div class="pdf-summary-card">
+              <div class="num">${formatCurrency(totalAmount)}</div>
+              <div class="label">Total Unsettled Amount</div>
+            </div>
+          </div>
+          <div class="pdf-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Vehicle Plate</th>
+                  <th>Status</th>
+                  <th style="text-align:right;">Total Liters</th>
+                  <th style="text-align:right;">Total Amount</th>
+                  <th style="text-align:center;">No. of Unsettled Receipts</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows}
+              </tbody>
+            </table>
+          </div>
           <div class="pdf-footer">
             Report generated from Gasoline Liquidation Tracker · ${now}
           </div>
