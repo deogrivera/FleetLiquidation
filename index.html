@@ -111,6 +111,21 @@
   .refresh-btn .spin.on { animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Debug info */
+  .debug-info {
+    margin-top: 14px;
+    background: #f0f4f8;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: .78rem;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .debug-info strong { color: var(--ink); }
+  .debug-info .found { color: var(--settled); }
+  .debug-info .not-found { color: var(--pending); }
+
   /* Overview KPI Groups */
   .kpi-overview {
     margin-top: 16px;
@@ -428,6 +443,17 @@
     </div>
   </div>
 
+  <!-- DEBUG INFO -->
+  <div class="debug-info" id="debugInfo">
+    <strong>🔍 Column Detection:</strong>
+    Amount column: <span id="debugAmount" class="not-found">Not detected</span> &nbsp;|&nbsp;
+    Liters column: <span id="debugLiters" class="not-found">Not detected</span> &nbsp;|&nbsp;
+    Vehicle column: <span id="debugVehicle" class="not-found">Not detected</span> &nbsp;|&nbsp;
+    Date column: <span id="debugDate" class="not-found">Not detected</span>
+    <br>
+    <strong>📋 Headers found:</strong> <span id="debugHeaders">None</span>
+  </div>
+
   <!-- OVERVIEW: Grouped Summary + Unsettled -->
   <div class="kpi-overview" id="kpiOverview">
     <div class="overview-title">
@@ -648,6 +674,13 @@
   const statusFilterSelect = document.getElementById('statusFilterSelect');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 
+  // Debug elements
+  const debugAmount = document.getElementById('debugAmount');
+  const debugLiters = document.getElementById('debugLiters');
+  const debugVehicle = document.getElementById('debugVehicle');
+  const debugDate = document.getElementById('debugDate');
+  const debugHeaders = document.getElementById('debugHeaders');
+
   // KPI element references
   const kpiTotalReceipts = document.getElementById('kpiTotalReceipts');
   const kpiTotalLiters = document.getElementById('kpiTotalLiters');
@@ -803,32 +836,62 @@
   function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:2, minimumFractionDigits:0}); }
 
   function detectSpecialColumns(dataHeaders){
+    // Update debug headers
+    debugHeaders.textContent = dataHeaders.length > 0 ? dataHeaders.join(', ') : 'None';
+    
     vehicleCol = dataHeaders.find(h => /plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     
-    // AMOUNT COLUMN: Specifically look for the exact column name from the sheet
-    // "GROSS PURCHASE PRICE IN TRANSACTION CURRENCY (INCL VAT AND AFTER DISCOUNT)"
-    // Also match variations with different case or spacing
+    // AMOUNT COLUMN: Try multiple strategies to find the right column
+    // Strategy 1: Look for the exact long column name (case insensitive)
     amountCol = dataHeaders.find(h => {
       const lower = h.toLowerCase();
       return lower.includes('gross purchase price') || 
-             lower.includes('gross amount') || 
-             lower.includes('purchase price') && lower.includes('vat') ||
+             lower.includes('gross purchase') ||
+             lower.includes('purchase price in transaction') ||
              lower.includes('transaction currency') ||
-             lower.includes('gross') && lower.includes('price') && lower.includes('vat');
+             lower.includes('incl vat') ||
+             lower.includes('after discount');
     }) || null;
     
-    // Fallback: look for any amount/price column
+    // Strategy 2: Look for "gross" + "price" or "gross" + "amount"
     if (!amountCol) {
-      amountCol = dataHeaders.find(h => /amount|cost|value|price|total|gross/i.test(h)) || null;
+      amountCol = dataHeaders.find(h => {
+        const lower = h.toLowerCase();
+        return (lower.includes('gross') && lower.includes('price')) ||
+               (lower.includes('gross') && lower.includes('amount'));
+      }) || null;
     }
     
-    // Debug: log what was found
-    console.log('Amount column detected:', amountCol);
-    console.log('Liters column detected:', litersCol);
-    console.log('Vehicle column detected:', vehicleCol);
-    console.log('Date column detected:', dateCol);
+    // Strategy 3: Look for any column with "amount", "price", or "total"
+    if (!amountCol) {
+      amountCol = dataHeaders.find(h => {
+        const lower = h.toLowerCase();
+        return lower.includes('amount') || 
+               lower.includes('price') || 
+               lower.includes('total') || 
+               lower.includes('cost') || 
+               lower.includes('value');
+      }) || null;
+    }
+    
+    // Update debug info
+    debugAmount.textContent = amountCol || 'Not detected';
+    debugAmount.className = amountCol ? 'found' : 'not-found';
+    debugLiters.textContent = litersCol || 'Not detected';
+    debugLiters.className = litersCol ? 'found' : 'not-found';
+    debugVehicle.textContent = vehicleCol || 'Not detected';
+    debugVehicle.className = vehicleCol ? 'found' : 'not-found';
+    debugDate.textContent = dateCol || 'Not detected';
+    debugDate.className = dateCol ? 'found' : 'not-found';
+    
+    console.log('=== Column Detection Results ===');
+    console.log('Amount column:', amountCol);
+    console.log('Liters column:', litersCol);
+    console.log('Vehicle column:', vehicleCol);
+    console.log('Date column:', dateCol);
+    console.log('All headers:', dataHeaders);
   }
 
   function rebuildFilterOptions(){
