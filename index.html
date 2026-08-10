@@ -157,9 +157,103 @@
   .debug-content-inner .found { color: var(--settled); }
   .debug-content-inner .not-found { color: var(--pending); }
 
+  /* ===== TABS ===== */
+  .tabs-container {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .tabs-header {
+    display: flex;
+    border-bottom: 2px solid var(--line-soft);
+    background: #f6f8fb;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: .2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .tab-btn:hover { background: var(--brand-tint); color: var(--brand); }
+  .tab-btn.active {
+    color: var(--brand);
+    background: white;
+  }
+  .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--brand);
+    border-radius: 3px 3px 0 0;
+  }
+  .tab-btn .tab-badge {
+    font-size: .65rem;
+    background: var(--brand-tint);
+    color: var(--brand);
+    padding: 0 8px;
+    border-radius: 10px;
+    line-height: 16px;
+    font-weight: 600;
+  }
+  .tab-btn .tab-badge.filter-badge {
+    background: var(--pending-bg);
+    color: var(--pending);
+  }
+  .tab-content {
+    display: none;
+    padding: 18px 20px 20px;
+    background: white;
+    animation: fadeIn .3s ease;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Tab 1: Overview specific */
+  .tab-content .kpi-overview {
+    margin-top: 0;
+  }
+  .tab-content .charts-section {
+    margin-top: 16px;
+  }
+  .tab-content .gauge-card {
+    margin-top: 16px;
+  }
+
+  /* Tab 2: Filtered View specific */
+  .tab-content .filtered-kpi-section {
+    margin-top: 0;
+  }
+  .tab-content .toolbar {
+    margin-top: 0;
+  }
+  .tab-content .table-wrap {
+    margin-top: 16px;
+  }
+
   /* KPI Overview - 3 columns */
   .kpi-overview {
-    margin-top: 16px;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -266,7 +360,6 @@
 
   /* Charts Section */
   .charts-section {
-    margin-top: 16px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
@@ -301,13 +394,6 @@
   .chart-container { position: relative; height: 180px; }
 
   /* Full-width trend charts */
-  .chart-card.full-width {
-    grid-column: 1 / -1;
-  }
-  .chart-card.full-width canvas { max-height: 200px; }
-  .chart-card.full-width .chart-container { height: 200px; }
-
-  /* Trend charts grid - stacked vertically */
   .trend-charts {
     grid-column: 1 / -1;
     display: flex;
@@ -327,7 +413,6 @@
 
   /* Filtered KPI section */
   .filtered-kpi-section {
-    margin-top: 14px;
     background: #f9fbfd;
     border-radius: var(--radius);
     border: 1px solid #dce2ec;
@@ -385,12 +470,12 @@
     .filtered-kpi-group .kpi-items { grid-template-columns: 1fr; }
   }
 
+  /* Gauge card */
   .gauge-card {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 18px 22px;
-    margin-top: 16px;
     box-shadow: var(--shadow);
   }
   .gauge-top { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
@@ -409,9 +494,10 @@
   .gauge-legend .sw.pending { background: var(--pending); }
   .gauge-legend b { color: var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
 
+  /* Toolbar */
   .toolbar {
     display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-    margin-top: 16px; background: var(--surface); border: 1px solid var(--line);
+    background: var(--surface); border: 1px solid var(--line);
     padding: 12px 16px; border-radius: 12px; box-shadow: var(--shadow);
   }
   .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -467,7 +553,9 @@
     border-radius: 8px; cursor: pointer; font-size: .84rem; display: flex; align-items: center; gap: 6px;
   }
   .badge-count { background: var(--brand); color: #fff; border-radius: 50%; padding: 0 6px; font-size: .68rem; min-width: 18px; text-align: center; }
-  .table-wrap { overflow: auto; margin-top: 16px; border-radius: 12px; border: 1px solid var(--line); max-height: 65vh; background: var(--surface); box-shadow: var(--shadow); }
+
+  /* Table */
+  .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); max-height: 65vh; background: var(--surface); box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; font-size: .86rem; }
   th {
     background: #f6f8fb; text-align: left; padding: 11px 10px; position: sticky; top: 0;
@@ -501,24 +589,30 @@
   .row-flag.queued { background: #f28b82; }
   .empty-state { text-align: center; padding: 52px 20px; color: var(--ink-soft); }
   .empty-state .icon { font-size: 2rem; margin-bottom: 6px; }
+
+  /* Banners */
   .banner { display: none; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; font-size: .85rem; margin-top: 14px; border: 1px solid transparent; }
   .banner.show { display: flex; }
   .banner.error { background: var(--pending-bg); border-color: #f0c2c2; color: var(--pending); }
   .banner.info { background: var(--brand-tint); border-color: #c8dbd7; color: var(--brand-dark); }
   .banner.warn { background: var(--incomplete-bg); border-color: var(--incomplete-line); color: var(--incomplete); }
   .banner button { margin-left: auto; flex-shrink: 0; }
+
   .footer-actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
   .source-tag { font-size: .74rem; color: var(--ink-soft); margin-left: auto; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; border-radius: 8px; }
   .source-tag code { background: var(--paper); padding: 2px 6px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
   .legend-chip { font-size: .78rem; color: var(--ink-soft); }
   .legend-chip span { padding: 2px 9px; border-radius: 12px; font-weight: 600; font-size: .74rem; }
   .table-export-btn { margin-left: auto; }
+
   @media (max-width: 700px) {
     .stats { margin-left: 0; width: 100%; }
     .search-box { min-width: 140px; }
     .masthead { flex-direction: column; align-items: flex-start; }
     .source-tag { margin-left: 0; width: 100%; }
     .table-export-btn { margin-left: 0; }
+    .tab-btn { font-size: .8rem; padding: 10px 12px; }
+    .tab-content { padding: 12px 14px 16px; }
   }
 </style>
 </head>
@@ -560,138 +654,211 @@
     </div>
   </div>
 
-  <!-- OVERVIEW: TOTAL - SETTLED - UNSETTLED -->
-  <div class="kpi-overview" id="kpiOverview">
-    <div class="overview-title">
-      📊 Overview
-      <span class="badge">All data</span>
+  <!-- ===== TABS ===== -->
+  <div class="tabs-container">
+    <div class="tabs-header">
+      <button class="tab-btn active" data-tab="tab1">
+        📊 Overview
+        <span class="tab-badge">All Data</span>
+      </button>
+      <button class="tab-btn" data-tab="tab2">
+        🔎 Filtered View
+        <span class="tab-badge filter-badge" id="filterTabBadge">0 rows</span>
+      </button>
     </div>
-    <div class="overview-grid">
-      <!-- TOTAL Group -->
-      <div class="kpi-group">
-        <div class="group-title">📋 TOTAL <span class="badge-sm total-badge">All Receipts</span></div>
-        <div class="kpi-items" id="totalItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
+
+    <!-- TAB 1: Overview -->
+    <div class="tab-content active" id="tab1">
+      <!-- KPI Overview -->
+      <div class="kpi-overview">
+        <div class="overview-title">
+          📊 Key Metrics
+          <span class="badge">All Data</span>
+        </div>
+        <div class="overview-grid">
+          <!-- TOTAL Group -->
+          <div class="kpi-group">
+            <div class="group-title">📋 TOTAL <span class="badge-sm total-badge">All Receipts</span></div>
+            <div class="kpi-items" id="totalItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
+            </div>
+          </div>
+          <!-- SETTLED Group -->
+          <div class="kpi-group">
+            <div class="group-title">✅ SETTLED <span class="badge-sm settled-badge">Completed</span></div>
+            <div class="kpi-items" id="settledItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color big" id="kpiSettledReceipts">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color big" id="kpiSettledLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color big" id="kpiSettledAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color big" id="kpiSettledPct">0%</span></div>
+            </div>
+          </div>
+          <!-- UNSETTLED Group -->
+          <div class="kpi-group">
+            <div class="group-title">⏳ UNSETTLED <span class="badge-sm unsettled-badge">Pending + Incomplete</span></div>
+            <div class="kpi-items" id="unsettledItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color big" id="kpiUnsettledPct">0%</span></div>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- SETTLED Group -->
-      <div class="kpi-group">
-        <div class="group-title">✅ SETTLED <span class="badge-sm settled-badge">Completed</span></div>
-        <div class="kpi-items" id="settledItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color big" id="kpiSettledReceipts">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color big" id="kpiSettledLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color big" id="kpiSettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color big" id="kpiSettledPct">0%</span></div>
+
+      <!-- Charts -->
+      <div class="charts-section">
+        <!-- Donut Chart -->
+        <div class="chart-card">
+          <div class="chart-title">🍩 Settlement Breakdown <span class="badge-chart">Status</span></div>
+          <div class="chart-container"><canvas id="donutChart"></canvas></div>
+        </div>
+        <!-- Gauge Chart -->
+        <div class="chart-card">
+          <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
+          <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
+        </div>
+
+        <!-- Trend Charts -->
+        <div class="trend-charts">
+          <div class="chart-card">
+            <div class="chart-title">⛽ Liters Trend <span class="badge-chart">Volume</span></div>
+            <div class="chart-container"><canvas id="litersTrendChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🧾 Receipts Trend <span class="badge-chart">Count</span></div>
+            <div class="chart-container"><canvas id="receiptsTrendChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">💰 Amount Trend <span class="badge-chart">Value</span></div>
+            <div class="chart-container"><canvas id="amountTrendChart"></canvas></div>
+          </div>
         </div>
       </div>
-      <!-- UNSETTLED Group -->
-      <div class="kpi-group">
-        <div class="group-title">⏳ UNSETTLED <span class="badge-sm unsettled-badge">Pending + Incomplete</span></div>
-        <div class="kpi-items" id="unsettledItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color big" id="kpiUnsettledPct">0%</span></div>
+
+      <!-- Gauge Bar -->
+      <div class="gauge-card" style="margin-top:16px;">
+        <div class="gauge-top">
+          <span class="title">Liquidation progress</span>
+          <span class="pct" id="gaugePct">0% settled</span>
         </div>
+        <div class="gauge-track">
+          <div class="gauge-seg settled" id="segSettled" style="width:0%"></div>
+          <div class="gauge-seg incomplete" id="segIncomplete" style="width:0%"></div>
+          <div class="gauge-seg pending" id="segPending" style="width:0%"></div>
+        </div>
+        <div class="gauge-legend">
+          <span class="item"><span class="sw settled"></span>Settled <b id="legSettled">0</b></span>
+          <span class="item"><span class="sw incomplete"></span>Incomplete <b id="legIncomplete">0</b></span>
+          <span class="item"><span class="sw pending"></span>Pending <b id="legPending">0</b></span>
+          <span class="item">Total <b id="legTotal">0</b></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Filtered View -->
+    <div class="tab-content" id="tab2">
+      <!-- Filtered KPI -->
+      <div class="filtered-kpi-section">
+        <div class="section-label">
+          <span>🔎 Filtered Results</span>
+          <span class="badge-filter" id="filterBadge">0 rows</span>
+        </div>
+        <div class="filtered-kpi-grid">
+          <!-- Filtered TOTAL -->
+          <div class="filtered-kpi-group">
+            <div class="group-title">📋 TOTAL</div>
+            <div class="kpi-items" id="filtTotalItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value" id="filtTotalReceipts">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value" id="filtTotalLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value" id="filtTotalAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
+            </div>
+          </div>
+          <!-- Filtered SETTLED -->
+          <div class="filtered-kpi-group">
+            <div class="group-title">✅ SETTLED</div>
+            <div class="kpi-items" id="filtSettledItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color" id="filtSettledReceipts">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color" id="filtSettledLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color" id="filtSettledAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color" id="filtSettledPct">0%</span></div>
+            </div>
+          </div>
+          <!-- Filtered UNSETTLED -->
+          <div class="filtered-kpi-group">
+            <div class="group-title">⏳ UNSETTLED</div>
+            <div class="kpi-items" id="filtUnsettledItems">
+              <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color" id="filtUnsettledCount">0</span></div>
+              <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color" id="filtUnsettledLiters">0</span></div>
+              <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color" id="filtUnsettledAmount">₱0</span></div>
+              <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color" id="filtUnsettledPct">0%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar" style="margin-top:16px;">
+        <div class="controls">
+          <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts or vehicle...">
+          <select class="filter-select" id="statusFilterSelect">
+            <option value="all">All Status</option>
+            <option value="Settled">✅ Settled</option>
+            <option value="Pending">⏳ Pending</option>
+            <option value="Incomplete">⚠️ Incomplete</option>
+          </select>
+          <select class="filter-select" id="vehicleFilterSelect" style="display:none;">
+            <option value="all">All vehicles</option>
+          </select>
+          <select class="filter-select" id="monthFilterSelect" style="display:none;">
+            <option value="all">All months</option>
+          </select>
+          <button class="ghost" id="clearFiltersBtn">✕ Clear filters</button>
+          <div class="col-visibility">
+            <button class="col-visibility-toggle" id="colVisibilityToggle">📊 Columns <span class="badge-count" id="colCountBadge">0</span></button>
+            <div class="col-visibility-dropdown" id="colVisibilityDropdown">
+              <div style="font-weight:600;font-size:.78rem;color:var(--ink-soft);padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:6px;">Show / hide columns</div>
+              <div id="colCheckboxList"></div>
+              <div style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button id="showAllCols" style="font-size:.72rem;padding:3px 10px;">Show all</button>
+                <button id="hideAllCols" style="font-size:.72rem;padding:3px 10px;">Hide all</button>
+              </div>
+            </div>
+          </div>
+          <label class="file-label" for="csvUpload">📂 Load CSV manually</label>
+          <input type="file" id="csvUpload" accept=".csv">
+        </div>
+        <div class="stats" id="statsDisplay">
+          <div class="stat settled"><span class="stat-label">Settled</span> <span class="stat-value" id="countSettled">0</span></div>
+          <div class="stat pending"><span class="stat-label">Pending</span> <span class="stat-value" id="countPending">0</span></div>
+          <div class="stat incomplete"><span class="stat-label">Incomplete</span> <span class="stat-value" id="countIncomplete">0</span></div>
+          <div class="stat"><span class="stat-label" style="color:var(--ink-soft);">Total</span> <span class="stat-value" id="countTotal">0</span></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap" style="margin-top:16px;">
+        <div style="display:flex;justify-content:flex-end;padding:8px 12px;background:#f6f8fb;border-bottom:1px solid var(--line);">
+          <button id="tableExportBtn" class="primary" style="font-size:.78rem;padding:4px 12px;">⬇ Export Table CSV</button>
+        </div>
+        <div class="empty-state" id="emptyState">
+          <div class="icon">⛽</div>
+          <p>Connecting to the liquidation log…</p>
+          <p style="font-size:.85rem;">If nothing loads, use <strong>"Load CSV manually"</strong> as a fallback.</p>
+        </div>
+        <table id="dataTable" style="display:none;">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- CHARTS SECTION -->
-  <div class="charts-section" id="chartsSection">
-    <!-- Donut Chart: Settlement Breakdown -->
-    <div class="chart-card">
-      <div class="chart-title">🍩 Settlement Breakdown <span class="badge-chart">Status</span></div>
-      <div class="chart-container"><canvas id="donutChart"></canvas></div>
-    </div>
-    <!-- Gauge/Progress Ring: KPI Progress -->
-    <div class="chart-card">
-      <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
-      <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
-    </div>
-
-    <!-- Trend Charts - Stacked Vertically -->
-    <div class="trend-charts">
-      <!-- Liters Trend -->
-      <div class="chart-card">
-        <div class="chart-title">⛽ Liters Trend <span class="badge-chart">Volume</span></div>
-        <div class="chart-container"><canvas id="litersTrendChart"></canvas></div>
-      </div>
-      <!-- Receipts Trend -->
-      <div class="chart-card">
-        <div class="chart-title">🧾 Receipts Trend <span class="badge-chart">Count</span></div>
-        <div class="chart-container"><canvas id="receiptsTrendChart"></canvas></div>
-      </div>
-      <!-- Amount Trend -->
-      <div class="chart-card">
-        <div class="chart-title">💰 Amount Trend <span class="badge-chart">Value</span></div>
-        <div class="chart-container"><canvas id="amountTrendChart"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FILTERED VIEW -->
-  <div class="filtered-kpi-section" id="filteredKpiSection">
-    <div class="section-label">
-      <span>🔎 Filtered view</span>
-      <span class="badge-filter" id="filterBadge">0 rows</span>
-    </div>
-    <div class="filtered-kpi-grid" id="filteredKpiGrid">
-      <!-- Filtered TOTAL -->
-      <div class="filtered-kpi-group">
-        <div class="group-title">📋 TOTAL</div>
-        <div class="kpi-items" id="filtTotalItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value" id="filtTotalReceipts">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value" id="filtTotalLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value" id="filtTotalAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
-        </div>
-      </div>
-      <!-- Filtered SETTLED -->
-      <div class="filtered-kpi-group">
-        <div class="group-title">✅ SETTLED</div>
-        <div class="kpi-items" id="filtSettledItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value settled-color" id="filtSettledReceipts">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value settled-color" id="filtSettledLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value settled-color" id="filtSettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">% of Total</span><span class="value settled-color" id="filtSettledPct">0%</span></div>
-        </div>
-      </div>
-      <!-- Filtered UNSETTLED -->
-      <div class="filtered-kpi-group">
-        <div class="group-title">⏳ UNSETTLED</div>
-        <div class="kpi-items" id="filtUnsettledItems">
-          <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color" id="filtUnsettledCount">0</span></div>
-          <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color" id="filtUnsettledLiters">0</span></div>
-          <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color" id="filtUnsettledAmount">₱0</span></div>
-          <div class="kpi-item"><span class="label">% of Total</span><span class="value pending-color" id="filtUnsettledPct">0%</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- gauge -->
-  <div class="gauge-card">
-    <div class="gauge-top">
-      <span class="title">Liquidation progress</span>
-      <span class="pct" id="gaugePct">0% settled</span>
-    </div>
-    <div class="gauge-track">
-      <div class="gauge-seg settled" id="segSettled" style="width:0%"></div>
-      <div class="gauge-seg incomplete" id="segIncomplete" style="width:0%"></div>
-      <div class="gauge-seg pending" id="segPending" style="width:0%"></div>
-    </div>
-    <div class="gauge-legend">
-      <span class="item"><span class="sw settled"></span>Settled <b id="legSettled">0</b></span>
-      <span class="item"><span class="sw incomplete"></span>Incomplete <b id="legIncomplete">0</b></span>
-      <span class="item"><span class="sw pending"></span>Pending <b id="legPending">0</b></span>
-      <span class="item">Total <b id="legTotal">0</b></span>
-    </div>
-  </div>
-
+  <!-- Banners -->
   <div class="banner warn" id="configBanner">
     <span>⚙️</span>
     <span>Two-way sync isn't wired up yet — open the file and set <code>WEBAPP_URL</code> at the top of the script to your deployed Apps Script Web App URL. Until then, status/remark edits are saved only in this browser.</span>
@@ -706,61 +873,7 @@
     <span id="pendingText">Some changes haven't reached the sheet yet — retrying…</span>
   </div>
 
-  <!-- toolbar -->
-  <div class="toolbar">
-    <div class="controls">
-      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search receipts or vehicle...">
-      <select class="filter-select" id="statusFilterSelect">
-        <option value="all">All Status</option>
-        <option value="Settled">✅ Settled</option>
-        <option value="Pending">⏳ Pending</option>
-        <option value="Incomplete">⚠️ Incomplete</option>
-      </select>
-      <select class="filter-select" id="vehicleFilterSelect" style="display:none;">
-        <option value="all">All vehicles</option>
-      </select>
-      <select class="filter-select" id="monthFilterSelect" style="display:none;">
-        <option value="all">All months</option>
-      </select>
-      <button class="ghost" id="clearFiltersBtn">✕ Clear filters</button>
-      <div class="col-visibility">
-        <button class="col-visibility-toggle" id="colVisibilityToggle">📊 Columns <span class="badge-count" id="colCountBadge">0</span></button>
-        <div class="col-visibility-dropdown" id="colVisibilityDropdown">
-          <div style="font-weight:600;font-size:.78rem;color:var(--ink-soft);padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:6px;">Show / hide columns</div>
-          <div id="colCheckboxList"></div>
-          <div style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button id="showAllCols" style="font-size:.72rem;padding:3px 10px;">Show all</button>
-            <button id="hideAllCols" style="font-size:.72rem;padding:3px 10px;">Hide all</button>
-          </div>
-        </div>
-      </div>
-      <label class="file-label" for="csvUpload">📂 Load CSV manually</label>
-      <input type="file" id="csvUpload" accept=".csv">
-    </div>
-    <div class="stats" id="statsDisplay">
-      <div class="stat settled"><span class="stat-label">Settled</span> <span class="stat-value" id="countSettled">0</span></div>
-      <div class="stat pending"><span class="stat-label">Pending</span> <span class="stat-value" id="countPending">0</span></div>
-      <div class="stat incomplete"><span class="stat-label">Incomplete</span> <span class="stat-value" id="countIncomplete">0</span></div>
-      <div class="stat"><span class="stat-label" style="color:var(--ink-soft);">Total</span> <span class="stat-value" id="countTotal">0</span></div>
-    </div>
-  </div>
-
-  <!-- table -->
-  <div class="table-wrap" id="tableWrap">
-    <div style="display:flex;justify-content:flex-end;padding:8px 12px;background:#f6f8fb;border-bottom:1px solid var(--line);">
-      <button id="tableExportBtn" class="primary" style="font-size:.78rem;padding:4px 12px;">⬇ Export Table CSV</button>
-    </div>
-    <div class="empty-state" id="emptyState">
-      <div class="icon">⛽</div>
-      <p>Connecting to the liquidation log…</p>
-      <p style="font-size:.85rem;">If nothing loads, use <strong>"Load CSV manually"</strong> as a fallback.</p>
-    </div>
-    <table id="dataTable" style="display:none;">
-      <thead id="tableHead"></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
-
+  <!-- Footer -->
   <div class="footer-actions">
     <button id="exportBtn" class="primary">💾 Export Full CSV</button>
     <span class="legend-chip">
@@ -837,10 +950,15 @@
   const pendingText = document.getElementById('pendingText');
   const sourceUrlLabel = document.getElementById('sourceUrlLabel');
   const filterBadge = document.getElementById('filterBadge');
+  const filterTabBadge = document.getElementById('filterTabBadge');
   const vehicleFilterSelect = document.getElementById('vehicleFilterSelect');
   const monthFilterSelect = document.getElementById('monthFilterSelect');
   const statusFilterSelect = document.getElementById('statusFilterSelect');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+  // Tabs
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
 
   // Debug elements
   const debugAmount = document.getElementById('debugAmount');
@@ -865,6 +983,17 @@
     debugOpen = !debugOpen;
     debugContent.classList.toggle('open', debugOpen);
     debugArrow.classList.toggle('open', debugOpen);
+  });
+
+  // Tab switching
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tabId = this.dataset.tab;
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    });
   });
 
   // KPI element references - TOTAL
@@ -1136,7 +1265,7 @@
       total: '#0f4c5c'
     };
 
-    // 1. Donut Chart: Settlement Breakdown
+    // 1. Donut Chart
     if (donutChart) donutChart.destroy();
     donutChart = new Chart(donutCanvas, {
       type: 'doughnut',
@@ -1158,7 +1287,7 @@
       }
     });
 
-    // 2. Gauge/Progress Ring Chart
+    // 2. Gauge Chart
     if (gaugeChart) gaugeChart.destroy();
     gaugeChart = new Chart(gaugeCanvas, {
       type: 'doughnut',
@@ -1539,10 +1668,13 @@
       filtUnsettledPct.textContent = unsettledPct + '%';
       
       filterBadge.textContent = total + ' row' + (total !== 1 ? 's' : '');
+      filterTabBadge.textContent = total + ' rows';
     }
 
-    // Update charts with the data
-    updateCharts(data);
+    // Update charts with the data (only for main data, not filtered)
+    if (!isFiltered) {
+      updateCharts(data);
+    }
   }
 
   function updateStats(){
@@ -1565,8 +1697,10 @@
     document.getElementById('segIncomplete').style.width = (currentData.length ? currentData.filter(r=>r._status==='Incomplete').length/currentData.length*100 : 0) + '%';
     document.getElementById('segPending').style.width = (currentData.length ? currentData.filter(r=>r._status==='Pending').length/currentData.length*100 : 0) + '%';
 
-    const chartData = filteredData.length ? filteredData : currentData;
+    // Update main KPIs (Overview tab)
     updateKPIs(currentData, false);
+    
+    // Update filtered KPIs (Filtered View tab)
     if (filteredData.length) {
       updateKPIs(filteredData, true);
     } else {
