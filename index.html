@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -111,20 +112,90 @@
   .refresh-btn .spin.on { animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Debug info */
-  .debug-info {
+  /* Collapsible Debug Info */
+  .debug-wrapper {
     margin-top: 14px;
-    background: #f0f4f8;
     border: 1px solid var(--line);
     border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .debug-toggle {
+    width: 100%;
+    padding: 10px 16px;
+    background: #f0f4f8;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: .2s;
+  }
+  .debug-toggle:hover { background: #e8ecf0; }
+  .debug-toggle .arrow { transition: transform .25s ease; display: inline-block; }
+  .debug-toggle .arrow.open { transform: rotate(180deg); }
+  .debug-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s ease;
+    background: #fafbfc;
+  }
+  .debug-content.open { max-height: 300px; overflow-y: auto; }
+  .debug-content-inner {
     padding: 12px 16px;
     font-size: .78rem;
     color: var(--ink-soft);
     font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
   }
-  .debug-info strong { color: var(--ink); }
-  .debug-info .found { color: var(--settled); }
-  .debug-info .not-found { color: var(--pending); }
+  .debug-content-inner strong { color: var(--ink); }
+  .debug-content-inner .found { color: var(--settled); }
+  .debug-content-inner .not-found { color: var(--pending); }
+
+  /* Charts Section */
+  .charts-section {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px 18px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card .chart-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-card .chart-title .badge-chart {
+    font-size: .6rem;
+    font-weight: 600;
+    padding: 0 8px;
+    border-radius: 10px;
+    line-height: 16px;
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
+  .chart-card canvas { max-height: 180px; max-width: 100%; }
+  .chart-container { position: relative; height: 180px; }
+
+  @media (max-width: 900px) {
+    .charts-section { grid-template-columns: 1fr; }
+  }
 
   /* Overview KPI Groups */
   .kpi-overview {
@@ -443,15 +514,22 @@
     </div>
   </div>
 
-  <!-- DEBUG INFO -->
-  <div class="debug-info" id="debugInfo">
-    <strong>🔍 Column Detection:</strong>
-    Amount column: <span id="debugAmount" class="not-found">Not detected</span> &nbsp;|&nbsp;
-    Liters column: <span id="debugLiters" class="not-found">Not detected</span> &nbsp;|&nbsp;
-    Vehicle column: <span id="debugVehicle" class="not-found">Not detected</span> &nbsp;|&nbsp;
-    Date column: <span id="debugDate" class="not-found">Not detected</span>
-    <br>
-    <strong>📋 Headers found:</strong> <span id="debugHeaders">None</span>
+  <!-- Collapsible Debug Info -->
+  <div class="debug-wrapper">
+    <button class="debug-toggle" id="debugToggle">
+      <span>🔍 Column Detection Details</span>
+      <span class="arrow" id="debugArrow">▼</span>
+    </button>
+    <div class="debug-content" id="debugContent">
+      <div class="debug-content-inner">
+        Amount column: <span id="debugAmount" class="not-found">Not detected</span> &nbsp;|&nbsp;
+        Liters column: <span id="debugLiters" class="not-found">Not detected</span> &nbsp;|&nbsp;
+        Vehicle column: <span id="debugVehicle" class="not-found">Not detected</span> &nbsp;|&nbsp;
+        Date column: <span id="debugDate" class="not-found">Not detected</span>
+        <br>
+        <strong>📋 Headers found:</strong> <span id="debugHeaders">None</span>
+      </div>
+    </div>
   </div>
 
   <!-- OVERVIEW: Grouped Summary + Unsettled -->
@@ -481,6 +559,30 @@
           <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color big" id="kpiUnsettledRate">0%</span></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- CHARTS SECTION -->
+  <div class="charts-section" id="chartsSection">
+    <!-- Donut Chart: Settlement Breakdown -->
+    <div class="chart-card">
+      <div class="chart-title">🍩 Settlement Breakdown <span class="badge-chart">Status</span></div>
+      <div class="chart-container"><canvas id="donutChart"></canvas></div>
+    </div>
+    <!-- Gauge/Progress Ring: KPI Progress -->
+    <div class="chart-card">
+      <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
+      <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
+    </div>
+    <!-- Stacked Bar: Liters Breakdown -->
+    <div class="chart-card">
+      <div class="chart-title">📊 Liters Breakdown <span class="badge-chart">Volume</span></div>
+      <div class="chart-container"><canvas id="litersChart"></canvas></div>
+    </div>
+    <!-- Side-by-Side Bar: Receipt Count -->
+    <div class="chart-card">
+      <div class="chart-title">📋 Receipt Count <span class="badge-chart">Count</span></div>
+      <div class="chart-container"><canvas id="receiptsChart"></canvas></div>
     </div>
   </div>
 
@@ -637,6 +739,12 @@
   let statusFilter = 'all';
   let searchTerm = '';
 
+  // Chart instances
+  let donutChart = null;
+  let gaugeChart = null;
+  let litersChart = null;
+  let receiptsChart = null;
+
   // ========== DOM ==========
   const fileInput = document.getElementById('csvUpload');
   const exportBtn = document.getElementById('exportBtn');
@@ -680,6 +788,23 @@
   const debugVehicle = document.getElementById('debugVehicle');
   const debugDate = document.getElementById('debugDate');
   const debugHeaders = document.getElementById('debugHeaders');
+  const debugToggle = document.getElementById('debugToggle');
+  const debugContent = document.getElementById('debugContent');
+  const debugArrow = document.getElementById('debugArrow');
+
+  // Chart canvas elements
+  const donutCanvas = document.getElementById('donutChart');
+  const gaugeCanvas = document.getElementById('gaugeChart');
+  const litersCanvas = document.getElementById('litersChart');
+  const receiptsCanvas = document.getElementById('receiptsChart');
+
+  // Debug toggle
+  let debugOpen = false;
+  debugToggle.addEventListener('click', function() {
+    debugOpen = !debugOpen;
+    debugContent.classList.toggle('open', debugOpen);
+    debugArrow.classList.toggle('open', debugOpen);
+  });
 
   // KPI element references
   const kpiTotalReceipts = document.getElementById('kpiTotalReceipts');
@@ -827,7 +952,6 @@
   function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
   function parseAmount(str){ 
     if (!str) return 0;
-    // Remove currency symbols, commas, and any non-numeric characters except decimal point and minus sign
     const cleaned = String(str).replace(/[^0-9.\-]/g, '');
     const n = parseFloat(cleaned);
     return isNaN(n) ? 0 : n;
@@ -836,18 +960,15 @@
   function formatNumber(n){ return n.toLocaleString('en-PH', {maximumFractionDigits:2, minimumFractionDigits:0}); }
 
   function detectSpecialColumns(dataHeaders){
-    // Update debug headers
     debugHeaders.textContent = dataHeaders.length > 0 ? dataHeaders.join(', ') : 'None';
     
     vehicleCol = dataHeaders.find(h => /vehicle.*license|plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     
-    // AMOUNT COLUMN: Specifically target "Gross Purchase Price in transaction currency (incl VAT and after discount)"
-    // This is the exact column name from the sheet (Column AA)
+    // AMOUNT COLUMN: Target "Gross Purchase Price in transaction currency (incl VAT and after discount)"
     amountCol = dataHeaders.find(h => {
       const lower = h.toLowerCase();
-      // Exact match for the full column name or significant parts of it
       return lower.includes('gross purchase price in transaction currency') ||
              lower.includes('gross purchase price') && lower.includes('transaction currency') ||
              lower.includes('gross purchase price') && lower.includes('vat') ||
@@ -855,7 +976,6 @@
              lower.includes('gross') && lower.includes('purchase') && lower.includes('price') && lower.includes('vat');
     }) || null;
     
-    // If not found with the specific pattern, try a broader search for "Gross Purchase Price"
     if (!amountCol) {
       amountCol = dataHeaders.find(h => {
         const lower = h.toLowerCase();
@@ -864,7 +984,6 @@
       }) || null;
     }
     
-    // Update debug info
     debugAmount.textContent = amountCol || 'Not detected';
     debugAmount.className = amountCol ? 'found' : 'not-found';
     debugLiters.textContent = litersCol || 'Not detected';
@@ -879,7 +998,6 @@
     console.log('Liters column:', litersCol);
     console.log('Vehicle column:', vehicleCol);
     console.log('Date column:', dateCol);
-    console.log('All headers:', dataHeaders);
   }
 
   function rebuildFilterOptions(){
@@ -907,6 +1025,191 @@
     } else { monthFilterSelect.style.display = 'none'; monthFilter = 'all'; }
   }
 
+  // ===== CHART FUNCTIONS =====
+  function updateCharts(data) {
+    const total = data.length;
+    const settled = data.filter(r => r._status === 'Settled').length;
+    const pending = data.filter(r => r._status === 'Pending').length;
+    const incomplete = data.filter(r => r._status === 'Incomplete').length;
+    const unsettled = pending + incomplete;
+    const settledRate = total ? Math.round(settled/total*100) : 0;
+
+    let totalLiters = 0;
+    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    let settledLiters = 0;
+    if (litersCol) { settledLiters = data.filter(r => r._status === 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    let unsettledLiters = totalLiters - settledLiters;
+
+    const colors = {
+      settled: '#1f8a4c',
+      pending: '#c23b3b',
+      incomplete: '#a8710f',
+      unsettled: '#c23b3b'
+    };
+
+    // 1. Donut Chart: Settlement Breakdown
+    if (donutChart) donutChart.destroy();
+    donutChart = new Chart(donutCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Settled', 'Pending', 'Incomplete'],
+        datasets: [{
+          data: [settled, pending, incomplete],
+          backgroundColor: [colors.settled, colors.pending, colors.incomplete],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } }
+        }
+      }
+    });
+
+    // 2. Gauge/Progress Ring Chart
+    if (gaugeChart) gaugeChart.destroy();
+    gaugeChart = new Chart(gaugeCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Settled', 'Remaining'],
+        datasets: [{
+          data: [settledRate, 100 - settledRate],
+          backgroundColor: [colors.settled, '#e8ecf0'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '75%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed + '%';
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        beforeDraw: function(chart) {
+          const { width, height, ctx } = chart;
+          ctx.save();
+          const centerX = width / 2;
+          const centerY = height / 2 - 8;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = 'bold 24px "JetBrains Mono", monospace';
+          ctx.fillStyle = '#152233';
+          ctx.fillText(settledRate + '%', centerX, centerY);
+          ctx.font = '10px "Inter", sans-serif';
+          ctx.fillStyle = '#4a5a70';
+          ctx.fillText('Settled', centerX, centerY + 20);
+          ctx.restore();
+        }
+      }]
+    });
+
+    // 3. Stacked Bar: Liters Breakdown
+    if (litersChart) litersChart.destroy();
+    litersChart = new Chart(litersCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Liters'],
+        datasets: [
+          {
+            label: 'Settled Liters',
+            data: [settledLiters],
+            backgroundColor: colors.settled,
+            borderColor: colors.settled,
+            borderWidth: 1
+          },
+          {
+            label: 'Unsettled Liters',
+            data: [unsettledLiters],
+            backgroundColor: colors.unsettled,
+            borderColor: colors.unsettled,
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + formatNumber(context.parsed.y) + ' L';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, ticks: { font: { size: 9 } } }
+        }
+      }
+    });
+
+    // 4. Side-by-Side Bar: Receipt Count
+    if (receiptsChart) receiptsChart.destroy();
+    receiptsChart = new Chart(receiptsCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Receipts'],
+        datasets: [
+          {
+            label: 'Settled',
+            data: [settled],
+            backgroundColor: colors.settled,
+            borderColor: colors.settled,
+            borderWidth: 1
+          },
+          {
+            label: 'Pending',
+            data: [pending],
+            backgroundColor: colors.pending,
+            borderColor: colors.pending,
+            borderWidth: 1
+          },
+          {
+            label: 'Incomplete',
+            data: [incomplete],
+            backgroundColor: colors.incomplete,
+            borderColor: colors.incomplete,
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, ticks: { font: { size: 9 } } }
+        }
+      }
+    });
+  }
+
   // ===== KPI UPDATE FUNCTION =====
   function updateKPIs(data, isFiltered){
     const total = data.length;
@@ -916,22 +1219,14 @@
     const unsettled = pending + incomplete;
 
     let totalLiters = 0;
-    if (litersCol) { 
-      totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); 
-    }
+    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
     let totalAmount = 0;
-    if (amountCol) { 
-      totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); 
-    }
+    if (amountCol) { totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
 
     let unsettledLiters = 0;
     let unsettledAmount = 0;
-    if (litersCol) { 
-      unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); 
-    }
-    if (amountCol) { 
-      unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); 
-    }
+    if (litersCol) { unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    if (amountCol) { unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
 
     const settledRate = total ? Math.round(settled/total*100) : 0;
     const unsettledRate = total ? Math.round(unsettled/total*100) : 0;
@@ -956,6 +1251,9 @@
       filtUnsettledRate.textContent = unsettledRate + '%';
       filterBadge.textContent = total + ' row' + (total !== 1 ? 's' : '');
     }
+
+    // Update charts with the data
+    updateCharts(data);
   }
 
   function updateStats(){
@@ -978,6 +1276,8 @@
     document.getElementById('segIncomplete').style.width = (currentData.length ? currentData.filter(r=>r._status==='Incomplete').length/currentData.length*100 : 0) + '%';
     document.getElementById('segPending').style.width = (currentData.length ? currentData.filter(r=>r._status==='Pending').length/currentData.length*100 : 0) + '%';
 
+    // Update filtered or main data
+    const chartData = filteredData.length ? filteredData : currentData;
     updateKPIs(currentData, false);
     if (filteredData.length) {
       updateKPIs(filteredData, true);
@@ -992,30 +1292,23 @@
   function applyFilters(){
     const term = searchTerm.toLowerCase().trim();
     filteredData = currentData.filter(row => {
-      // Search: check all headers + status + remark + vehicle column
       if (term){
         let match = false;
-        // Check all data columns
         for (const h of headers) {
           if (String(row[h] || '').toLowerCase().includes(term)) { match = true; break; }
         }
-        // Check status and remark
         if (!match && String(row._status || '').toLowerCase().includes(term)) match = true;
         if (!match && String(row._remark || '').toLowerCase().includes(term)) match = true;
-        // Check vehicle column specifically if it exists
         if (!match && vehicleCol && String(row[vehicleCol] || '').toLowerCase().includes(term)) match = true;
         if (!match) return false;
       }
-      // Vehicle filter
       if (vehicleFilter !== 'all' && vehicleCol){
         if ((row[vehicleCol] || '').trim() !== vehicleFilter) return false;
       }
-      // Month filter
       if (monthFilter !== 'all' && dateCol){
         const d = parseFlexibleDate(row[dateCol]);
         if (!d || monthKey(d) !== monthFilter) return false;
       }
-      // Status filter
       if (statusFilter !== 'all' && row._status !== statusFilter) return false;
       return true;
     });
