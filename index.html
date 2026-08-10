@@ -111,32 +111,80 @@
   .refresh-btn .spin.on { animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .kpi-grid {
+  /* KPI Groups */
+  .kpi-section {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 14px;
     margin-top: 16px;
   }
-  .kpi-card {
+  .kpi-group {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: 16px 18px;
+    padding: 16px 18px 18px;
     box-shadow: var(--shadow);
+  }
+  .kpi-group .group-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: .95rem;
+    color: var(--ink);
+    border-bottom: 2px solid var(--line-soft);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
   }
-  .kpi-icon {
-    width: 38px; height: 38px; flex-shrink: 0;
-    border-radius: 10px;
+  .kpi-group .group-title .badge {
+    font-size: .65rem;
+    font-weight: 600;
     background: var(--brand-tint);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.05rem;
+    color: var(--brand);
+    padding: 0 8px;
+    border-radius: 12px;
+    line-height: 18px;
   }
-  .kpi-value { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.4rem; color: var(--ink); line-height: 1.1; }
-  .kpi-label { font-size: .76rem; color: var(--ink-soft); margin-top: 2px; }
+  .kpi-group .group-title .badge.settled-badge {
+    background: var(--settled-bg);
+    color: var(--settled);
+  }
+  .kpi-group .group-title .badge.pending-badge {
+    background: var(--pending-bg);
+    color: var(--pending);
+  }
+  .kpi-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .kpi-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .kpi-item .label {
+    font-size: .78rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .kpi-item .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .kpi-item .value.settled-color { color: var(--settled); }
+  .kpi-item .value.pending-color { color: var(--pending); }
+  .kpi-item .value.rate-color { color: var(--brand); }
+  .kpi-item .value.big {
+    font-size: 1.3rem;
+  }
 
+  /* Filtered KPI section */
   .filtered-kpi-section {
     margin-top: 14px;
     background: #f9fbfd;
@@ -165,36 +213,39 @@
   }
   .filtered-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  .filtered-kpi-card {
+  .filtered-kpi-group {
     background: white;
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    padding: 12px 14px 14px;
     box-shadow: var(--shadow);
   }
-  .filtered-kpi-card .kpi-icon {
-    width: 34px; height: 34px;
-    font-size: .95rem;
-    background: #eef2f6;
+  .filtered-kpi-group .group-title {
+    font-weight: 600;
+    font-size: .82rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
   }
-  .filtered-kpi-card .kpi-value {
-    font-size: 1.2rem;
+  .filtered-kpi-group .kpi-items {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .filtered-kpi-group .kpi-item .value {
+    font-size: .95rem;
   }
 
-  @media (max-width: 1100px) {
-    .kpi-grid, .filtered-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) {
+    .kpi-section { grid-template-columns: 1fr; }
+    .filtered-kpi-grid { grid-template-columns: 1fr; }
   }
-  @media (max-width: 700px) {
-    .kpi-grid, .filtered-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 480px) {
-    .kpi-grid, .filtered-kpi-grid { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    .kpi-items { grid-template-columns: 1fr; }
+    .filtered-kpi-group .kpi-items { grid-template-columns: 1fr; }
   }
 
   .gauge-card {
@@ -346,16 +397,65 @@
     </div>
   </div>
 
-  <!-- KPI GENERAL - 5 columns -->
-  <div class="kpi-grid" id="kpiGrid"></div>
+  <!-- KPI SECTION: Two groups side by side -->
+  <div class="kpi-section" id="kpiSection">
+    <!-- SUMMARY GROUP -->
+    <div class="kpi-group" id="summaryGroup">
+      <div class="group-title">
+        📊 Summary
+        <span class="badge">All data</span>
+      </div>
+      <div class="kpi-items" id="summaryItems">
+        <div class="kpi-item"><span class="label">Total Receipts</span><span class="value big" id="kpiTotalReceipts">0</span></div>
+        <div class="kpi-item"><span class="label">Total Liters</span><span class="value big" id="kpiTotalLiters">0</span></div>
+        <div class="kpi-item"><span class="label">Total Amount</span><span class="value big" id="kpiTotalAmount">₱0</span></div>
+        <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color big" id="kpiSettledRate">0%</span></div>
+      </div>
+    </div>
 
-  <!-- KPI FILTERED - 5 columns -->
+    <!-- UNSETTLED GROUP -->
+    <div class="kpi-group" id="unsettledGroup">
+      <div class="group-title">
+        ⏳ Unsettled
+        <span class="badge pending-badge">Pending + Incomplete</span>
+      </div>
+      <div class="kpi-items" id="unsettledItems">
+        <div class="kpi-item"><span class="label">No. of Unsettled Receipts</span><span class="value pending-color big" id="kpiUnsettledCount">0</span></div>
+        <div class="kpi-item"><span class="label">Unsettled Liters</span><span class="value pending-color big" id="kpiUnsettledLiters">0</span></div>
+        <div class="kpi-item"><span class="label">Unsettled Amount</span><span class="value pending-color big" id="kpiUnsettledAmount">₱0</span></div>
+        <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color big" id="kpiUnsettledRate">0%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERED KPI SECTION -->
   <div class="filtered-kpi-section" id="filteredKpiSection">
     <div class="section-label">
       <span>🔎 Filtered view</span>
       <span class="badge-filter" id="filterBadge">0 rows</span>
     </div>
-    <div class="filtered-kpi-grid" id="filteredKpiGrid"></div>
+    <div class="filtered-kpi-grid" id="filteredKpiGrid">
+      <!-- Filtered Summary -->
+      <div class="filtered-kpi-group">
+        <div class="group-title">📊 Summary</div>
+        <div class="kpi-items" id="filteredSummaryItems">
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value" id="filtTotalReceipts">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value" id="filtTotalLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value" id="filtTotalAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">Settled Rate</span><span class="value rate-color" id="filtSettledRate">0%</span></div>
+        </div>
+      </div>
+      <!-- Filtered Unsettled -->
+      <div class="filtered-kpi-group">
+        <div class="group-title">⏳ Unsettled</div>
+        <div class="kpi-items" id="filteredUnsettledItems">
+          <div class="kpi-item"><span class="label">Receipts</span><span class="value pending-color" id="filtUnsettledCount">0</span></div>
+          <div class="kpi-item"><span class="label">Liters</span><span class="value pending-color" id="filtUnsettledLiters">0</span></div>
+          <div class="kpi-item"><span class="label">Amount</span><span class="value pending-color" id="filtUnsettledAmount">₱0</span></div>
+          <div class="kpi-item"><span class="label">Unsettled Rate</span><span class="value pending-color" id="filtUnsettledRate">0%</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- gauge -->
@@ -467,8 +567,8 @@
   let sortDir = 1;
   let vehicleCol = null;
   let dateCol = null;
-  let litersCol = null;      // Column W
-  let amountCol = null;      // Column AA
+  let litersCol = null;
+  let amountCol = null;
   let vehicleFilter = 'all';
   let monthFilter = 'all';
   let searchTerm = '';
@@ -503,12 +603,31 @@
   const pendingBanner = document.getElementById('pendingBanner');
   const pendingText = document.getElementById('pendingText');
   const sourceUrlLabel = document.getElementById('sourceUrlLabel');
-  const kpiGrid = document.getElementById('kpiGrid');
-  const filteredKpiGrid = document.getElementById('filteredKpiGrid');
   const filterBadge = document.getElementById('filterBadge');
   const vehicleFilterSelect = document.getElementById('vehicleFilterSelect');
   const monthFilterSelect = document.getElementById('monthFilterSelect');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+  // KPI element references
+  const kpiTotalReceipts = document.getElementById('kpiTotalReceipts');
+  const kpiTotalLiters = document.getElementById('kpiTotalLiters');
+  const kpiTotalAmount = document.getElementById('kpiTotalAmount');
+  const kpiSettledRate = document.getElementById('kpiSettledRate');
+  const kpiUnsettledCount = document.getElementById('kpiUnsettledCount');
+  const kpiUnsettledLiters = document.getElementById('kpiUnsettledLiters');
+  const kpiUnsettledAmount = document.getElementById('kpiUnsettledAmount');
+  const kpiUnsettledRate = document.getElementById('kpiUnsettledRate');
+
+  // Filtered KPI elements
+  const filtTotalReceipts = document.getElementById('filtTotalReceipts');
+  const filtTotalLiters = document.getElementById('filtTotalLiters');
+  const filtTotalAmount = document.getElementById('filtTotalAmount');
+  const filtSettledRate = document.getElementById('filtSettledRate');
+  const filtUnsettledCount = document.getElementById('filtUnsettledCount');
+  const filtUnsettledLiters = document.getElementById('filtUnsettledLiters');
+  const filtUnsettledAmount = document.getElementById('filtUnsettledAmount');
+  const filtUnsettledRate = document.getElementById('filtUnsettledRate');
+
   sourceUrlLabel.textContent = SHEET_URL.length > 46 ? SHEET_URL.slice(0, 46) + '…' : SHEET_URL;
   sourceUrlLabel.title = SHEET_URL;
   configBanner.classList.toggle('show', !WEBAPP_URL);
@@ -607,18 +726,15 @@
     renderTable();
   }
 
-  // ========== DATE PARSER: MM/DD/YYYY first ==========
+  // ========== DATE PARSER ==========
   function parseFlexibleDate(str){
     if (!str) return null;
     str = String(str).trim();
     if (!str) return null;
-
     let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
     if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
-
     m = str.match(/^(\d{4})[-\/]([A-Za-z]{3,})[-\/](\d{1,2})$/);
     if (m){ const d = new Date(m[1]+' '+m[2]+' '+m[3]); if (!isNaN(d.getTime())) return d; }
-
     m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     if (m){
       let a = parseInt(m[1],10), b = parseInt(m[2],10), y = parseInt(m[3],10);
@@ -630,12 +746,7 @@
       const d = new Date(y, month-1, day);
       return isNaN(d.getTime()) ? null : d;
     }
-
-    if (/[A-Za-z]/.test(str)){
-      const d = new Date(str);
-      if (!isNaN(d.getTime())) return d;
-    }
-
+    if (/[A-Za-z]/.test(str)){ const d = new Date(str); if (!isNaN(d.getTime())) return d; }
     const d2 = new Date(str);
     return isNaN(d2.getTime()) ? null : d2;
   }
@@ -648,9 +759,7 @@
   function detectSpecialColumns(dataHeaders){
     vehicleCol = dataHeaders.find(h => /plate|vehicle|license/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
-    // Look for liters column (Column W) - common names: LITERS, LITRE, VOLUME, QTY, QUANTITY
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
-    // Look for amount column (Column AA) - common names: AMOUNT, COST, VALUE, PRICE, TOTAL
     amountCol = dataHeaders.find(h => /amount|cost|value|price|total/i.test(h)) || null;
   }
 
@@ -679,59 +788,49 @@
     } else { monthFilterSelect.style.display = 'none'; monthFilter = 'all'; }
   }
 
-  // ===== KPI UPDATES - 5 KPIs =====
-  function updateKPIs(){
-    // --- General KPIs (all data) ---
-    const total = currentData.length;
-    const settled = currentData.filter(r => r._status === 'Settled').length;
-    const pending = currentData.filter(r => r._status === 'Pending' || r._status === 'Incomplete').length;
-    const rate = total ? Math.round(settled/total*100) : 0;
+  // ===== KPI UPDATE FUNCTION =====
+  function updateKPIs(data, isFiltered){
+    const total = data.length;
+    const settled = data.filter(r => r._status === 'Settled').length;
+    const pending = data.filter(r => r._status === 'Pending').length;
+    const incomplete = data.filter(r => r._status === 'Incomplete').length;
+    const unsettled = pending + incomplete;
 
-    // Sum liters (Column W)
     let totalLiters = 0;
-    if (litersCol) {
-      totalLiters = currentData.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
-    }
-
-    // Sum amount (Column AA)
+    if (litersCol) { totalLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
     let totalAmount = 0;
-    if (amountCol) {
-      totalAmount = currentData.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
+    if (amountCol) { totalAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
+
+    let unsettledLiters = 0;
+    let unsettledAmount = 0;
+    if (litersCol) { unsettledLiters = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[litersCol]), 0); }
+    if (amountCol) { unsettledAmount = data.filter(r => r._status !== 'Settled').reduce((sum, r) => sum + parseAmount(r[amountCol]), 0); }
+
+    const settledRate = total ? Math.round(settled/total*100) : 0;
+    const unsettledRate = total ? Math.round(unsettled/total*100) : 0;
+
+    if (!isFiltered) {
+      // Update main KPIs
+      kpiTotalReceipts.textContent = total;
+      kpiTotalLiters.textContent = formatNumber(totalLiters);
+      kpiTotalAmount.textContent = formatCurrency(totalAmount);
+      kpiSettledRate.textContent = settledRate + '%';
+      kpiUnsettledCount.textContent = unsettled;
+      kpiUnsettledLiters.textContent = formatNumber(unsettledLiters);
+      kpiUnsettledAmount.textContent = formatCurrency(unsettledAmount);
+      kpiUnsettledRate.textContent = unsettledRate + '%';
+    } else {
+      // Update filtered KPIs
+      filtTotalReceipts.textContent = total;
+      filtTotalLiters.textContent = formatNumber(totalLiters);
+      filtTotalAmount.textContent = formatCurrency(totalAmount);
+      filtSettledRate.textContent = settledRate + '%';
+      filtUnsettledCount.textContent = unsettled;
+      filtUnsettledLiters.textContent = formatNumber(unsettledLiters);
+      filtUnsettledAmount.textContent = formatCurrency(unsettledAmount);
+      filtUnsettledRate.textContent = unsettledRate + '%';
+      filterBadge.textContent = total + ' row' + (total !== 1 ? 's' : '');
     }
-
-    kpiGrid.innerHTML = `
-      <div class="kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${total}</div><div class="kpi-label">Total Receipts</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${rate}%</div><div class="kpi-label">Settled Rate</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">⏳</div><div><div class="kpi-value">${pending}</div><div class="kpi-label">Pending (Unsettled) Receipts</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">⛽</div><div><div class="kpi-value">${formatNumber(totalLiters)}</div><div class="kpi-label">Total Liters</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon">💰</div><div><div class="kpi-value">${formatCurrency(totalAmount)}</div><div class="kpi-label">Total Amount</div></div></div>
-    `;
-
-    // --- Filtered KPIs ---
-    const data = filteredData.length ? filteredData : currentData;
-    const fTotal = data.length;
-    const fSettled = data.filter(r => r._status === 'Settled').length;
-    const fPending = data.filter(r => r._status === 'Pending' || r._status === 'Incomplete').length;
-    const fRate = fTotal ? Math.round(fSettled/fTotal*100) : 0;
-
-    let fLiters = 0;
-    if (litersCol) {
-      fLiters = data.reduce((sum, r) => sum + parseAmount(r[litersCol]), 0);
-    }
-    let fAmount = 0;
-    if (amountCol) {
-      fAmount = data.reduce((sum, r) => sum + parseAmount(r[amountCol]), 0);
-    }
-
-    filterBadge.textContent = fTotal + ' row' + (fTotal !== 1 ? 's' : '');
-
-    filteredKpiGrid.innerHTML = `
-      <div class="filtered-kpi-card"><div class="kpi-icon">🧾</div><div><div class="kpi-value">${fTotal}</div><div class="kpi-label">Filtered Receipts</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">📈</div><div><div class="kpi-value">${fRate}%</div><div class="kpi-label">Settled Rate</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">⏳</div><div><div class="kpi-value">${fPending}</div><div class="kpi-label">Pending (Unsettled)</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">⛽</div><div><div class="kpi-value">${formatNumber(fLiters)}</div><div class="kpi-label">Liters</div></div></div>
-      <div class="filtered-kpi-card"><div class="kpi-icon">💰</div><div><div class="kpi-value">${formatCurrency(fAmount)}</div><div class="kpi-label">Amount</div></div></div>
-    `;
   }
 
   function updateStats(){
@@ -753,7 +852,15 @@
     document.getElementById('segSettled').style.width = (currentData.length ? currentData.filter(r=>r._status==='Settled').length/currentData.length*100 : 0) + '%';
     document.getElementById('segIncomplete').style.width = (currentData.length ? currentData.filter(r=>r._status==='Incomplete').length/currentData.length*100 : 0) + '%';
     document.getElementById('segPending').style.width = (currentData.length ? currentData.filter(r=>r._status==='Pending').length/currentData.length*100 : 0) + '%';
-    updateKPIs();
+
+    // Update KPIs - main and filtered
+    updateKPIs(currentData, false);
+    if (filteredData.length) {
+      updateKPIs(filteredData, true);
+    } else {
+      // If no filter, show same as main in filtered section
+      updateKPIs(currentData, true);
+    }
   }
 
   function getVisibleHeaders(){ return headers.filter(h => columnVisibility[h] !== false); }
