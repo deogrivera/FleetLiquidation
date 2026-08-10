@@ -190,11 +190,19 @@
     background: var(--brand-tint);
     color: var(--brand);
   }
-  .chart-card canvas { max-height: 180px; max-width: 100%; }
-  .chart-container { position: relative; height: 180px; }
+  .chart-card canvas { max-height: 200px; max-width: 100%; }
+  .chart-container { position: relative; height: 200px; }
+
+  /* Full-width chart */
+  .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .chart-card.full-width canvas { max-height: 220px; }
+  .chart-card.full-width .chart-container { height: 220px; }
 
   @media (max-width: 900px) {
     .charts-section { grid-template-columns: 1fr; }
+    .chart-card.full-width { grid-column: 1; }
   }
 
   /* Overview KPI Groups */
@@ -574,15 +582,10 @@
       <div class="chart-title">🎯 Settlement Progress <span class="badge-chart">Target</span></div>
       <div class="chart-container"><canvas id="gaugeChart"></canvas></div>
     </div>
-    <!-- Stacked Bar: Liters Breakdown -->
-    <div class="chart-card">
-      <div class="chart-title">📊 Liters Breakdown <span class="badge-chart">Volume</span></div>
-      <div class="chart-container"><canvas id="litersChart"></canvas></div>
-    </div>
-    <!-- Side-by-Side Bar: Receipt Count -->
-    <div class="chart-card">
-      <div class="chart-title">📋 Receipt Count <span class="badge-chart">Count</span></div>
-      <div class="chart-container"><canvas id="receiptsChart"></canvas></div>
+    <!-- Full-width Dual-Axis Line Chart: Monthly Trends -->
+    <div class="chart-card full-width">
+      <div class="chart-title">📈 Monthly Trends: Liters & Receipts <span class="badge-chart">Volume vs Count</span></div>
+      <div class="chart-container"><canvas id="trendChart"></canvas></div>
     </div>
   </div>
 
@@ -742,8 +745,7 @@
   // Chart instances
   let donutChart = null;
   let gaugeChart = null;
-  let litersChart = null;
-  let receiptsChart = null;
+  let trendChart = null;
 
   // ========== DOM ==========
   const fileInput = document.getElementById('csvUpload');
@@ -795,8 +797,7 @@
   // Chart canvas elements
   const donutCanvas = document.getElementById('donutChart');
   const gaugeCanvas = document.getElementById('gaugeChart');
-  const litersCanvas = document.getElementById('litersChart');
-  const receiptsCanvas = document.getElementById('receiptsChart');
+  const trendCanvas = document.getElementById('trendChart');
 
   // Debug toggle
   let debugOpen = false;
@@ -966,7 +967,6 @@
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     
-    // AMOUNT COLUMN: Target "Gross Purchase Price in transaction currency (incl VAT and after discount)"
     amountCol = dataHeaders.find(h => {
       const lower = h.toLowerCase();
       return lower.includes('gross purchase price in transaction currency') ||
@@ -1116,95 +1116,151 @@
       }]
     });
 
-    // 3. Stacked Bar: Liters Breakdown
-    if (litersChart) litersChart.destroy();
-    litersChart = new Chart(litersCanvas, {
-      type: 'bar',
-      data: {
-        labels: ['Liters'],
-        datasets: [
-          {
-            label: 'Settled Liters',
-            data: [settledLiters],
-            backgroundColor: colors.settled,
-            borderColor: colors.settled,
-            borderWidth: 1
-          },
-          {
-            label: 'Unsettled Liters',
-            data: [unsettledLiters],
-            backgroundColor: colors.unsettled,
-            borderColor: colors.unsettled,
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return context.dataset.label + ': ' + formatNumber(context.parsed.y) + ' L';
-              }
-            }
-          }
-        },
-        scales: {
-          x: { stacked: true, grid: { display: false } },
-          y: { stacked: true, beginAtZero: true, ticks: { font: { size: 9 } } }
-        }
+    // 3. Dual-Axis Line Chart: Monthly Trends
+    // Group data by month
+    const monthGroups = {};
+    data.forEach(row => {
+      if (!dateCol) return;
+      const d = parseFlexibleDate(row[dateCol]);
+      if (!d) return;
+      const key = monthKey(d);
+      if (!monthGroups[key]) {
+        monthGroups[key] = { 
+          liters: 0, 
+          receipts: 0,
+          settledLiters: 0,
+          settledReceipts: 0
+        };
+      }
+      const liters = litersCol ? parseAmount(row[litersCol]) : 0;
+      const isSettled = row._status === 'Settled';
+      monthGroups[key].liters += liters;
+      monthGroups[key].receipts += 1;
+      if (isSettled) {
+        monthGroups[key].settledLiters += liters;
+        monthGroups[key].settledReceipts += 1;
       }
     });
 
-    // 4. Side-by-Side Bar: Receipt Count
-    if (receiptsChart) receiptsChart.destroy();
-    receiptsChart = new Chart(receiptsCanvas, {
-      type: 'bar',
+    // Sort months chronologically
+    const sortedMonths = Object.keys(monthGroups).sort();
+    const monthLabels = sortedMonths.map(k => {
+      const [y, mo] = k.split('-');
+      return new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleString('en-US', {month:'short', year:'numeric'});
+    });
+
+    const litersData = sortedMonths.map(k => monthGroups[k].liters);
+    const settledLitersData = sortedMonths.map(k => monthGroups[k].settledLiters);
+    const receiptsData = sortedMonths.map(k => monthGroups[k].receipts);
+    const settledReceiptsData = sortedMonths.map(k => monthGroups[k].settledReceipts);
+
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(trendCanvas, {
+      type: 'line',
       data: {
-        labels: ['Receipts'],
+        labels: monthLabels,
         datasets: [
           {
-            label: 'Settled',
-            data: [settled],
-            backgroundColor: colors.settled,
-            borderColor: colors.settled,
-            borderWidth: 1
+            label: 'Total Liters',
+            data: litersData,
+            borderColor: '#0f4c5c',
+            backgroundColor: 'rgba(15, 76, 92, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0f4c5c',
+            yAxisID: 'y',
           },
           {
-            label: 'Pending',
-            data: [pending],
-            backgroundColor: colors.pending,
-            borderColor: colors.pending,
-            borderWidth: 1
+            label: 'Settled Liters',
+            data: settledLitersData,
+            borderColor: '#1f8a4c',
+            backgroundColor: 'rgba(31, 138, 76, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#1f8a4c',
+            borderDash: [5, 5],
+            yAxisID: 'y',
           },
           {
-            label: 'Incomplete',
-            data: [incomplete],
-            backgroundColor: colors.incomplete,
-            borderColor: colors.incomplete,
-            borderWidth: 1
+            label: 'Total Receipts',
+            data: receiptsData,
+            borderColor: '#c23b3b',
+            backgroundColor: 'rgba(194, 59, 59, 0.1)',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#c23b3b',
+            yAxisID: 'y1',
+          },
+          {
+            label: 'Settled Receipts',
+            data: settledReceiptsData,
+            borderColor: '#a8710f',
+            backgroundColor: 'rgba(168, 113, 15, 0.1)',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#a8710f',
+            borderDash: [5, 5],
+            yAxisID: 'y1',
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8, font: { size: 10 } } },
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              boxWidth: 12, 
+              padding: 8, 
+              font: { size: 9 },
+              usePointStyle: true,
+              pointStyle: 'circle'
+            } 
+          },
           tooltip: {
             callbacks: {
               label: function(context) {
-                return context.dataset.label + ': ' + context.parsed.y;
+                let label = context.dataset.label || '';
+                let value = context.parsed.y;
+                if (context.dataset.yAxisID === 'y') {
+                  return label + ': ' + formatNumber(value) + ' L';
+                } else {
+                  return label + ': ' + value;
+                }
               }
             }
           }
         },
         scales: {
-          x: { grid: { display: false } },
-          y: { beginAtZero: true, ticks: { font: { size: 9 } } }
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 } }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            label: 'Liters',
+            ticks: { font: { size: 9 }, callback: function(value) { return formatNumber(value); } },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            label: 'Receipts',
+            ticks: { font: { size: 9 }, stepSize: 1 },
+            grid: { drawOnChartArea: false }
+          }
         }
       }
     });
@@ -1276,7 +1332,6 @@
     document.getElementById('segIncomplete').style.width = (currentData.length ? currentData.filter(r=>r._status==='Incomplete').length/currentData.length*100 : 0) + '%';
     document.getElementById('segPending').style.width = (currentData.length ? currentData.filter(r=>r._status==='Pending').length/currentData.length*100 : 0) + '%';
 
-    // Update filtered or main data
     const chartData = filteredData.length ? filteredData : currentData;
     updateKPIs(currentData, false);
     if (filteredData.length) {
