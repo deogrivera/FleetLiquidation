@@ -839,40 +839,28 @@
     // Update debug headers
     debugHeaders.textContent = dataHeaders.length > 0 ? dataHeaders.join(', ') : 'None';
     
-    vehicleCol = dataHeaders.find(h => /plate|vehicle|license|reg/i.test(h)) || null;
+    vehicleCol = dataHeaders.find(h => /vehicle.*license|plate|vehicle|license|reg/i.test(h)) || null;
     dateCol = dataHeaders.find(h => /delivery.*date|date.*delivery/i.test(h)) || dataHeaders.find(h => /date/i.test(h)) || null;
     litersCol = dataHeaders.find(h => /liters?|litres?|volume|qty|quantity|fuel/i.test(h)) || null;
     
-    // AMOUNT COLUMN: Try multiple strategies to find the right column
-    // Strategy 1: Look for the exact long column name (case insensitive)
+    // AMOUNT COLUMN: Specifically target "Gross Purchase Price in transaction currency (incl VAT and after discount)"
+    // This is the exact column name from the sheet (Column AA)
     amountCol = dataHeaders.find(h => {
       const lower = h.toLowerCase();
-      return lower.includes('gross purchase price') || 
-             lower.includes('gross purchase') ||
-             lower.includes('purchase price in transaction') ||
-             lower.includes('transaction currency') ||
-             lower.includes('incl vat') ||
-             lower.includes('after discount');
+      // Exact match for the full column name or significant parts of it
+      return lower.includes('gross purchase price in transaction currency') ||
+             lower.includes('gross purchase price') && lower.includes('transaction currency') ||
+             lower.includes('gross purchase price') && lower.includes('vat') ||
+             lower.includes('purchase price') && lower.includes('transaction currency') ||
+             lower.includes('gross') && lower.includes('purchase') && lower.includes('price') && lower.includes('vat');
     }) || null;
     
-    // Strategy 2: Look for "gross" + "price" or "gross" + "amount"
+    // If not found with the specific pattern, try a broader search for "Gross Purchase Price"
     if (!amountCol) {
       amountCol = dataHeaders.find(h => {
         const lower = h.toLowerCase();
-        return (lower.includes('gross') && lower.includes('price')) ||
-               (lower.includes('gross') && lower.includes('amount'));
-      }) || null;
-    }
-    
-    // Strategy 3: Look for any column with "amount", "price", or "total"
-    if (!amountCol) {
-      amountCol = dataHeaders.find(h => {
-        const lower = h.toLowerCase();
-        return lower.includes('amount') || 
-               lower.includes('price') || 
-               lower.includes('total') || 
-               lower.includes('cost') || 
-               lower.includes('value');
+        return lower.includes('gross purchase price') || 
+               (lower.includes('gross') && lower.includes('purchase') && lower.includes('price'));
       }) || null;
     }
     
